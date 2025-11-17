@@ -31,6 +31,7 @@ def create_file(path, user_id, match_id):
         data["players"][player[0]]["user"] = user[0]
         data["players"][player[0]]["id"] = chosen_character.id
         data["players"][player[0]]["name"] = chosen_character.name
+        data["players"][player[0]]["max_health"] = chosen_character.health
         data["players"][player[0]]["health"] = chosen_character.health
         data["players"][player[0]]["shield"] = chosen_character.shield
         data["players"][player[0]]["dice_id"] = 1

@@ -100,12 +100,11 @@ def handle_join_game(data):
     except:
         data = json_manager.read_json(path)
         turn_order = data["turn_order"]
-        e_char = json_manager.characters[data["players"][raw_player_id]["id"]]
         room = f"match_{match_id}"
         join_room(room)
         socketio.emit('match_snapshot', data, room=room)
         socketio.emit('turn_update', {"turn": turn_order[data["current_turn_index"]], "user": data["players"][turn_order[0]]["user"]}, room=room)
-        socketio.emit('health_update', {"current_health": data["players"][raw_player_id]["health"], "max_health": e_char.health, "user_id": raw_player_id}, room=room)
+        socketio.emit('health_update', {"current_health": data["players"][raw_player_id]["health"], "max_health": data["players"][raw_player_id]["max_health"], "user_id": raw_player_id}, room=room)
         return
 
     print(f"Player {player_id_str} joined match {match_id} at position {pos}")
@@ -117,11 +116,10 @@ def handle_join_game(data):
     room = f"match_{match_id}"
     join_room(room)
     data = json_manager.read_json(path)
-    e_char = json_manager.characters[data["players"][raw_player_id]["id"]]
     
     socketio.emit('match_snapshot', data, room=room)
     socketio.emit('turn_update', {"turn": turn_order[0], "user": data["players"][turn_order[0]]["user"]}, room=room)
-    socketio.emit('health_update', {"current_health": data["players"][raw_player_id]["health"], "max_health": e_char.health}, room=room)
+    socketio.emit('health_update', {"current_health": data["players"][raw_player_id]["health"], "max_health":data["players"][raw_player_id]["max_health"]}, room=room)
 
 @socketio.on('move_request')
 def handle_move_request(data):
@@ -191,6 +189,114 @@ def handle_roll_request(data):
 
     room = f"match_{match_id}"
     socketio.emit('roll_result', {"user": user, "value": value, "user_id": player_id}, room=room)
+
+
+@socketio.on('attackable_players')
+def find_attackable_players(data):
+    match_id = data.get("match_id")
+    player_id = data.get("player_id")
+    path = match_path(match_id)
+    players_data = json_manager.read_json(path)["players"]
+    player_pos = players_data[player_id]["position"]
+
+    player_char = json_manager.characters[players_data[player_id]["id"]]
+    char_range = player_char.range
+    attackable_blocks = []
+
+    for i in range(char_range[0], char_range[1] + 1):
+        pos_x = player_pos[0] + i
+        pos_y = player_pos[1] + i
+        neg_x = player_pos[0] - i
+        neg_y = player_pos[1] - i
+
+        if pos_x > 9:
+            pass
+        else:
+            attackable_blocks.append([pos_x, player_pos[1]])
+        if pos_y > 9:
+            pass
+        else:
+            attackable_blocks.append([player_pos[0], pos_y])
+        if neg_x < 0:
+            pass
+        else:
+            attackable_blocks.append([neg_x, player_pos[1]])
+        if neg_y < 0:
+            pass
+        else:
+            attackable_blocks.append([player_pos[0], neg_y])
+
+        if pos_x > 9 and pos_y > 9 and neg_x < 0 and neg_y < 0:
+            break
+
+    attackable_players = []
+
+    for player in players_data:
+        if player == player_id:
+            continue
+        if players_data[player]["position"] in attackable_blocks:
+            attackable_players.append(players_data[player]["position"])
+
+    success = False
+    if attackable_players:
+        success = True
+
+    socketio.emit("attackable_players_result", {"match_id": match_id, "player_id": player_id, "attacks": attackable_players, "success": success})
+    
+    if not success:
+        data = json_manager.read_json(path)
+        room = f"match_{match_id}"
+        total_players = data["player_count"]
+        next_turn_ind = data["current_turn_index"] + 1
+        turn_order = data["turn_order"]
+
+        if next_turn_ind > (total_players - 1):
+            next_turn_ind = 0
+
+        json_manager.modify_json(path, ["current_turn_index"], next_turn_ind)
+        socketio.emit('turn_update', {"turn":turn_order[next_turn_ind], "user": data["players"][turn_order[next_turn_ind]]["user"]}, room=room)
+
+
+@socketio.on('attack_request')
+def handle_attack_request(data):
+    match_id = data.get("match_id")
+    player_id = data.get("player_id")
+    path = match_path(match_id)
+    target = data.get("target")
+    target_pos = [target[0], target[1]]
+    players_data = json_manager.read_json(path)["players"]
+    player_char = json_manager.characters[players_data[player_id]["id"]]
+
+    for player in players_data:
+        if player == player_id:
+            continue
+        if players_data[player]["position"] == target_pos:
+            opp_char = json_manager.characters[players_data[player]["id"]]
+            opp_char.health = players_data[player]["health"]
+            opp_char.shield = players_data[player]["shield"]
+
+            player_char.attack_target(opp_char)
+
+            json_manager.modify_json(path, ["players", player, "health"], opp_char.health)
+            json_manager.modify_json(path, ["players", player, "shield"], opp_char.shield)
+
+            socketio.emit("health_update", {"attacker": players_data[player_id]["user"], "target": players_data[player]["user"], "user_id": player, "current_health": opp_char.health, "max_health": players_data[player]["max_health"]})
+
+            break
+    
+
+    data = json_manager.read_json(path)
+    room = f"match_{match_id}"
+    total_players = data["player_count"]
+    next_turn_ind = data["current_turn_index"] + 1
+    turn_order = data["turn_order"]
+
+    if next_turn_ind > (total_players - 1):
+        next_turn_ind = 0
+
+    json_manager.modify_json(path, ["current_turn_index"], next_turn_ind)
+    socketio.emit('turn_update', {"turn":turn_order[next_turn_ind], "user": data["players"][turn_order[next_turn_ind]]["user"]}, room=room)
+
     
 
 

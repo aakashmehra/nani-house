@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let lastRoll = null; // server-provided roll until used
     let rollDisplayTimeout = null; // timeout for hiding roll display
+    let attackMode = false;
 
     if (rollBtn) {
         rollBtn.addEventListener('click', () => {
@@ -153,6 +154,22 @@ document.addEventListener('DOMContentLoaded', () => {
             socket.emit('roll_request', { match_id: matchId, player_id: playerId });
         });
     }
+
+    if (attackBtn){
+        attackBtn.addEventListener('click', () => {
+            attackBtn.disabled = true;
+            attackMode = true;
+            if (!matchId || !playerId) {
+                showFlashMessage('Missing match or player ID. Cannot roll.');
+                attackMode = false;
+                gameRemote.style.display = "block"
+                return;
+            }
+            showFlashMessage("Choose a player to Attack!")
+            socket.emit('attackable_players', { match_id: matchId, player_id: playerId })
+        });
+    }
+
 
     // Items button (renamed from Inventory)
     if (itemsBtn) {
@@ -201,9 +218,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('health_update', (d) => {
+        console.log(d)
+        if(attackMode){
+            showFlashMessage(`${d.attacker} Attacked ${d.target}`)
+            attackMode = false;
+        }
         if (d.user_id === playerId){
             let percent = (d.current_health/d.max_health) * 100;
             healthFill.style.width = percent + "%";
+        }
+    });
+
+    socket.on('attackable_players_result', (d) => {
+        if (d.player_id === playerId){
+            if (d.success === false){
+                showFlashMessage("No Players in range")
+                attackMode = false;
+            }
+            highlightPositions(d.attacks)
         }
     });
 
@@ -270,6 +302,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const logicalY = 9 - domRow;
         const logicalX = col;
 
+
+        if (attackMode){
+            const key = `${logicalX},${logicalY}`;
+            if (!highlightedSet.has(key)) {
+                showFlashMessage('Not in Range');
+                return;
+            }
+            console.log(key)
+            socket.emit("attack_request", {
+                match_id: matchId,
+                player_id: playerId,
+                target: [logicalX, logicalY],
+            })
+        }
         // require a roll before moving
         if (lastRoll === null) {
             showFlashMessage("You must roll first!");

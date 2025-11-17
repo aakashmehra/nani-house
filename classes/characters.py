@@ -53,7 +53,7 @@ class Tontar(Characters):
         self.health = 110
         self.attack = 20
         self.shield = 0
-        self.range = [0,2]
+        self.range = [0,100]
 
     def special_ability(self, target):
         print(f"{self.name} uses Power Strike!")
