@@ -1,0 +1,133 @@
+/* Main game style — layout, fonts, color themes */
+
+/* ---------- Light theme (default) ---------- */
+:root{
+    /* neutrals */
+    --bg: #333333;            /* page background (soft grid) */
+    --surface: #FFFFFF;       /* card / panel */
+    --muted: #BFC5CC;         /* secondary text / borders */
+    --line: #E6E8EB;          /* thin dividers / grid lines */
+    --text: #111318;          /* main text */
+  
+    /* semantic */
+    --primary: #5B3E8A;       /* main brand / CTA (deep purple, Prepto) */
+    --primary-600: #4a3270;
+    --primary-300: #8f69c9;
+    --accent: #A45CFF;        /* glowing accent, magic */
+    --info: #00A5FF;          /* Mishu / speed */
+    --success: #32D583;       /* Ditte / support green */
+    --danger: #E23B3B;        /* Beaster / berserker red */
+    --warning: #FF8C42;       /* Dholky / drum orange */
+  
+    /* character-specific highlights (named) */
+    --sniper-green: #2ED07D;    /* sniper rifle glow */
+    --teleporter-purple: #C56BFF;
+    --berserker-red: #E23B3B;
+    --tank-wood: #A36A2F;
+    --speedster-blue: #00A5FF;
+    --trap-purple: #6E4C8A;
+    --support-green: #32D583;
+  
+    /* UI helpers */
+    --elev-shadow: 0 8px 20px rgba(17,19,24,0.08);
+    --glow: 0 0 18px rgba(164,92,255,0.22);
+  
+    /* spacing / radius */
+    --radius: 14px;
+    --soft-radius: 10px;
+  }
+  
+  /* ---------- Dark theme override ---------- */
+  :root[data-theme="dark"]{
+    --bg: #0E0F12;
+    --surface: #121318;
+    --muted: #8A9098;
+    --line: #1E2226;
+    --text: #ECEFF1;
+  
+    --primary: #8F69C9;
+    --primary-600: #7a53b8;
+    --primary-300: #b79cf3;
+    --accent: #C56BFF;
+    --info: #37B7FF;
+    --success: #48D998;
+    --danger: #FF5C5C;
+    --warning: #FF9A5B;
+  
+    --sniper-green: #2ED07D;
+    --teleporter-purple: #C56BFF;
+    --berserker-red: #FF5C5C;
+    --tank-wood: #B7864A;
+    --speedster-blue: #37B7FF;
+    --trap-purple: #8A66B0;
+    --support-green: #48D998;
+  
+    --elev-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    --glow: 0 0 20px rgba(197,107,255,0.28);
+  }
+  
+  /* ---------- Example usages ---------- */
+  .body, html {
+    background-color: #101510;
+  }
+
+  /* card */
+  .card {
+    background: var(--surface);
+    color: var(--text);
+    border-radius: var(--radius);
+    box-shadow: var(--elev-shadow);
+    border: 1px solid var(--line);
+    padding: 20px;
+  }
+  
+  /* primary CTA */
+  .btn-primary{
+    background: linear-gradient(180deg, var(--primary-300), var(--primary));
+    color: white;
+    border-radius: 12px;
+    padding: 10px 16px;
+    box-shadow: var(--glow);
+  }
+  
+  /* small subtitle / muted text */
+  .muted { color: var(--muted); }
+  
+  /* character badge with glow */
+  .chip-prepto {
+    background: linear-gradient(90deg, rgba(197,107,255,0.12), rgba(164,92,255,0.06));
+    color: var(--teleporter-purple);
+    border-radius: 999px;
+    padding: 6px 10px;
+    box-shadow: 0 0 12px rgba(164,92,255,0.12);
+    border: 1px solid rgba(164,92,255,0.08);
+  }
+  
+  /* sniper accent outline example */
+  .icon-sniper {
+    box-shadow: 0 0 12px rgba(46,208,125,0.15);
+    border: 2px solid rgba(46,208,125,0.12);
+    color: var(--sniper-green);
+  }
+  
+  /* small helper to tint images to match theme */
+  .img-tint {
+    background: linear-gradient(180deg, rgba(0,0,0,0.04), rgba(0,0,0,0));
+  }
+  
+  /* usage: switch to dark mode by adding data-theme="dark" on html or body:
+     <html data-theme="dark"> ... </html>
+  */
+
+  /* ---------- Background Image for All Pages ---------- */
+  body {
+    background-image: url('/static/img/background/game_bg.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+  

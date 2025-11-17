@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+{% block title %}SHOP - Nani House{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/grid_page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/shop.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/inventory.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="menu-container">
+        <div class="title">SHOP</div>
+        <div class="coin-section">
+            <div class="coin_value">{{ coin_value }}</div>
+            <div class="coins"><img src="{{ url_for('static', filename='img/buttons/pippa_coin.webp') }}" alt="coins" height="50"></div>
+        </div>
+        <div class="back-button" id="shop-back-button">
+            <a href="{{ back_url }}" id="shop-back-link"><img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="100"></a>
+        </div>
+        
+        <!-- Shop Section Buttons -->
+        <div class="shop-buttons" id="shop-buttons">
+            <button class="shop-section-btn" data-category="characters">CHARACTERS</button>
+            <button class="shop-section-btn" data-category="dice">DICE</button>
+            <button class="shop-section-btn" data-category="items">ITEMS</button>
+            <button class="shop-section-btn shop-section-btn-packs" data-category="packs">PACKS</button>
+        </div>
+        
+        <!-- Grid Container (hidden initially) -->
+        <div class="grid-container" id="shop-grid-container" style="display: none;">
+            {% if shop_items %}
+                {% for shop_item in shop_items %}
+                <div class="grid-item">
+                    <div class="shop-item-wrapper">
+                        <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="shop-popup-bg">
+                        <div class="shop-content">
+                            <div class="shop-name">{{ shop_item.name }}</div>
+                        </div>
+                        <div class="shop-coin-display">
+                            <div class="shop-coin-value">{{ shop_item.cost }}</div>
+                            <img src="{{ url_for('static', filename='img/buttons/pippa_coin.webp') }}" alt="coins" class="shop-coin-image">
+                        </div>
+                        <button class="shop-button"
+                                data-item-id="{{ shop_item.id }}"
+                                data-item-type="{{ shop_item.item_type }}"
+                                data-cost="{{ shop_item.cost }}">
+                            BUY
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                {% for i in range(6) %}
+                <div class="grid-item">
+                    <div class="shop-item-wrapper">
+                        <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="shop-popup-bg">
+                        <div class="shop-content">
+                            <div class="shop-name">Coming Soon</div>
+                            <div class="shop-cost">-</div>
+                        </div>
+                        <div class="shop-coin-display">
+                            <div class="shop-coin-value">-</div>
+                            <img src="{{ url_for('static', filename='img/buttons/pippa_coin.webp') }}" alt="coins" class="shop-coin-image">
+                        </div>
+                        <button class="shop-button" disabled>
+                            BUY
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+    // Shop items data - all items passed from server
+    const allShopItems = {{ shop_items_json | tojson | safe }};
+    
+    // Organize items by category
+    function categorizeItems(items) {
+        const categorized = {
+            characters: [],
+            dice: [],
+            items: [],
+            packs: []
+        };
+        
+        items.forEach(item => {
+            const itemType = (item.item_type || '').toLowerCase();
+            if (itemType.includes('character')) {
+                categorized.characters.push(item);
+            } else if (itemType.includes('dice')) {
+                categorized.dice.push(item);
+            } else if (itemType.includes('item')) {
+                categorized.items.push(item);
+            } else if (itemType.includes('pack')) {
+                categorized.packs.push(item);
+            }
+        });
+        
+        return categorized;
+    }
+    
+    const shopItemsByCategory = categorizeItems(allShopItems);
+    
+    const shopButtons = document.getElementById('shop-buttons');
+    const shopGridContainer = document.getElementById('shop-grid-container');
+    
+    function showShopSections() {
+        shopButtons.style.display = 'flex';
+        shopGridContainer.style.display = 'none';
+        
+        // Reset back button to original URL
+        const backLink = document.getElementById('shop-back-link');
+        backLink.href = '{{ back_url }}';
+        backLink.onclick = null;
+    }
+    
+    function showShopGrid(category) {
+        shopButtons.style.display = 'none';
+        shopGridContainer.style.display = 'grid';
+        
+        // Update back button to go back to sections
+        const backLink = document.getElementById('shop-back-link');
+        backLink.href = 'javascript:void(0)';
+        backLink.onclick = (e) => {
+            e.preventDefault();
+            showShopSections();
+        };
+        
+        // Filter and display items for the selected category
+        const items = shopItemsByCategory[category] || [];
+        const gridContainer = shopGridContainer;
+        
+        // Clear existing items
+        gridContainer.innerHTML = '';
+        
+        if (items.length > 0) {
+            items.forEach(shopItem => {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.innerHTML = `
+                    <div class="shop-item-wrapper">
+                        <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="shop-popup-bg">
+                        <div class="shop-content">
+                            <div class="shop-name">${shopItem.name}</div>
+                        </div>
+                        <div class="shop-coin-display">
+                            <div class="shop-coin-value">${shopItem.cost}</div>
+                            <img src="{{ url_for('static', filename='img/buttons/pippa_coin.webp') }}" alt="coins" class="shop-coin-image">
+                        </div>
+                        <button class="shop-button"
+                                data-item-id="${shopItem.id}"
+                                data-item-type="${shopItem.item_type}"
+                                data-cost="${shopItem.cost}">
+                            BUY
+                        </button>
+                    </div>
+                `;
+                gridContainer.appendChild(gridItem);
+            });
+            
+            // Re-attach event listeners to new buttons
+            // This will be done in the main DOMContentLoaded handler
+        } else {
+            // Show "Coming Soon" placeholders
+            for (let i = 0; i < 6; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.innerHTML = `
+                    <div class="shop-item-wrapper">
+                        <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="shop-popup-bg">
+                        <div class="shop-content">
+                            <div class="shop-name">Coming Soon</div>
+                        </div>
+                        <div class="shop-coin-display">
+                            <div class="shop-coin-value">-</div>
+                            <img src="{{ url_for('static', filename='img/buttons/pippa_coin.webp') }}" alt="coins" class="shop-coin-image">
+                        </div>
+                        <button class="shop-button" disabled>
+                            BUY
+                        </button>
+                    </div>
+                `;
+                gridContainer.appendChild(gridItem);
+            }
+        }
+    }
+    
+    // Attach click listeners to section buttons
+    document.querySelectorAll('.shop-section-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const category = btn.dataset.category;
+            showShopGrid(category);
+            // Re-attach buy button listeners after showing grid
+            setTimeout(() => {
+                const buyButtons = document.querySelectorAll('.shop-button');
+                buyButtons.forEach(buyBtn => {
+                    if (!buyBtn.dataset.listenerAttached) {
+                        buyBtn.dataset.listenerAttached = 'true';
+                        buyBtn.addEventListener('click', (ev) => {
+                            const itemId = buyBtn.dataset.itemId;
+                            if (!itemId || buyBtn.disabled) return;
+                            const cost = buyBtn.dataset.cost;
+                            
+                            // Show confirm modal
+                            showConfirm(cost, () => {
+                                buy(parseInt(itemId, 10), buyBtn);
+                            });
+                        });
+                    }
+                });
+            }, 100);
+        });
+    });
+    
+    // Make functions available globally
+    window.showShopSections = showShopSections;
+    window.showShopGrid = showShopGrid;
+    </script>
+    
+    <!-- Custom Popup Modal -->
+    <div id="shop-popup" class="shop-popup-modal hidden">
+        <div class="shop-popup-overlay"></div>
+        <div class="shop-popup-content">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="shop-popup-bg-img">
+            <div class="shop-popup-inner">
+                <div class="shop-popup-title" id="popup-title"></div>
+                <div class="shop-popup-message" id="popup-message"></div>
+                <button class="shop-popup-button" id="popup-ok-button">OK</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Confirm Modal -->
+    <div id="shop-confirm" class="shop-popup-modal hidden">
+        <div class="shop-popup-overlay"></div>
+        <div class="shop-popup-content">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="shop-popup-bg-img">
+            <div class="shop-popup-inner">
+                <div class="shop-popup-title">Confirm Purchase</div>
+                <div class="shop-popup-message" id="confirm-message"></div>
+                <div class="shop-popup-buttons">
+                    <button class="shop-popup-button shop-popup-cancel" id="confirm-cancel">Cancel</button>
+                    <button class="shop-popup-button shop-popup-confirm" id="confirm-ok">Buy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const coinDisplay = document.querySelector('.coin_value');
+    const popup = document.getElementById('shop-popup');
+    const confirmModal = document.getElementById('shop-confirm');
+    const popupTitle = document.getElementById('popup-title');
+    const popupMessage = document.getElementById('popup-message');
+    const popupOkButton = document.getElementById('popup-ok-button');
+    const confirmMessage = document.getElementById('confirm-message');
+    const confirmOkButton = document.getElementById('confirm-ok');
+    const confirmCancelButton = document.getElementById('confirm-cancel');
+    
+    let pendingPurchase = null;
+    
+    // Show popup function
+    function showPopup(title, message) {
+        popupTitle.textContent = title;
+        popupMessage.textContent = message;
+        popup.classList.remove('hidden');
+    }
+    
+    // Hide popup function
+    function hidePopup() {
+        popup.classList.add('hidden');
+    }
+    
+    // Show confirm modal
+    function showConfirm(cost, callback) {
+        confirmMessage.textContent = `Buy this item for ${cost} coins?`;
+        confirmModal.classList.remove('hidden');
+        pendingPurchase = callback;
+    }
+    
+    // Hide confirm modal
+    function hideConfirm() {
+        confirmModal.classList.add('hidden');
+        pendingPurchase = null;
+    }
+    
+    // Popup OK button
+    popupOkButton.addEventListener('click', hidePopup);
+    
+    // Confirm buttons
+    confirmOkButton.addEventListener('click', () => {
+        if (pendingPurchase) {
+            pendingPurchase();
+        }
+        hideConfirm();
+    });
+    
+    confirmCancelButton.addEventListener('click', hideConfirm);
+    
+    // Close on overlay click
+    popup.querySelector('.shop-popup-overlay').addEventListener('click', hidePopup);
+    confirmModal.querySelector('.shop-popup-overlay').addEventListener('click', hideConfirm);
+
+    async function buy(itemId, btn) {
+        btn.disabled = true;
+        const originalText = btn.textContent;
+        btn.textContent = '...';
+
+        try {
+        const res = await fetch('/buy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_id: itemId })
+        });
+        const j = await res.json();
+
+        if (!res.ok) {
+            const msg = j && (j.error || j.detail) ? (j.error + (j.detail ? ': ' + j.detail : '')) : 'Unknown error';
+            showPopup('Purchase Failed', msg);
+            return;
+        }
+
+        if (j.success) {
+            // update coin display if present
+            if (coinDisplay && typeof j.coins !== 'undefined') {
+            coinDisplay.textContent = j.coins;
+            }
+
+            // Show success popup
+            if (j.added) {
+                const itemName = j.added.character_name || j.added.dice_name || j.added.chest_name || 'item';
+                showPopup('Purchase Successful!', `You purchased: ${itemName}`);
+            } else {
+                showPopup('Purchase Successful!', 'Item added to your inventory');
+            }
+        } else {
+            showPopup('Purchase Failed', j.error || 'Unknown error occurred');
+        }
+
+        } catch (err) {
+        console.error(err);
+        showPopup('Network Error', 'Failed to connect to server. Please try again.');
+        } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+        }
+    }
+
+    // Use event delegation for dynamically created buttons
+    function attachBuyButtonListeners() {
+        document.querySelectorAll('.shop-button').forEach(btn => {
+            // Remove existing listeners by cloning
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            newBtn.addEventListener('click', (ev) => {
+                const itemId = newBtn.dataset.itemId;
+                if (!itemId || newBtn.disabled) return;
+                const cost = newBtn.dataset.cost;
+                
+                // Show confirm modal instead of browser confirm
+                showConfirm(cost, () => {
+                    buy(parseInt(itemId, 10), newBtn);
+                });
+            });
+        });
+    }
+    
+    // Attach listeners to initial buttons
+    attachBuyButtonListeners();
+    
+    // Update showShopGrid to re-attach listeners after creating new buttons
+    const originalShowShopGrid = window.showShopGrid;
+    if (originalShowShopGrid) {
+        window.showShopGrid = function(category) {
+            originalShowShopGrid(category);
+            // Re-attach listeners after a short delay to ensure DOM is updated
+            setTimeout(attachBuyButtonListeners, 100);
+        };
+    }
+    });
+    </script>
+
+{% endblock %}
+

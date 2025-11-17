@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Nani House - Inventory{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/grid_page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/inventory.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="menu-container">
+        <div class="title">INVENTORY</div>
+        <div class="back-button">
+            <a href="{{ url_for('main') }}"><img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="100"></a>
+        </div>
+        <div class="coin-section">
+            <div class="coin_value">{{ coin_value }}</div>
+            <div class="coins"><img src="{{ url_for('static', filename='img/buttons/pippa_coin.webp') }}" alt="coins" height="50"></div>
+        </div>
+        <div class="inventory-buttons">
+            <a href="{{ url_for('characters') }}" class="inventory-button characters-btn">CHARACTERS</a>
+            <a href="{{ url_for('dice') }}" class="inventory-button dice-btn">DICE</a>
+            <a href="{{ url_for('items') }}" class="inventory-button items-btn">ITEMS</a>
+            <a href="{{ url_for('packs') }}" class="inventory-button packs-btn">PACKS</a>
+        </div>
+    </div>
+{% endblock %}

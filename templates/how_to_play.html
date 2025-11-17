@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Nani House - How to Play{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/how_to_play.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="how-to-play-container">
+        <!-- Logo on top left -->
+        <div class="home-logo-top-left">
+            <img src="{{ url_for('static', filename='img/background/nani_house.webp') }}" alt="Nani House" class="home-logo-img">
+        </div>
+        
+        <!-- Navigation buttons on top right -->
+        <div class="home-nav-buttons">
+            <a href="{{ url_for('home') }}" class="home-nav-btn">
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Home" class="home-nav-btn-img">
+                <span class="home-nav-btn-text">Home</span>
+            </a>
+            <a href="{{ url_for('how_to_play') }}" class="home-nav-btn active">
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="How to Play" class="home-nav-btn-img">
+                <span class="home-nav-btn-text">How to Play</span>
+            </a>
+            <a href="{{ url_for('about') }}" class="home-nav-btn">
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="About" class="home-nav-btn-img">
+                <span class="home-nav-btn-text">About</span>
+            </a>
+        </div>
+        
+        <!-- How to Play Content -->
+        <div class="how-to-play-content">
+            <div class="how-to-play-title">HOW TO PLAY</div>
+            
+            <div class="how-to-play-section">
+                <h2 class="section-title">Game Overview</h2>
+                <p class="section-text">Nani House is a chaotic adventure combat board game on a 10×10 grid. Battle across the board, rolling dice, fighting enemies, and using abilities to be the last player standing or reach tile 100!</p>
+            </div>
+            
+            <div class="how-to-play-section">
+                <h2 class="section-title">Players & Goal</h2>
+                <p class="section-text">• 2-6 players<br>• Reach tile 100, or<br>• Be the last player alive</p>
+            </div>
+            
+            <div class="how-to-play-section">
+                <h2 class="section-title">Actions Per Turn</h2>
+                <p class="section-text">
+                    <strong>Roll:</strong> Roll a 6-sided dice and move forward<br>
+                    <strong>Attack:</strong> Attack enemies within range<br>
+                    <strong>Ability:</strong> Use your character's unique ability<br>
+                    <strong>Items:</strong> Use items from your inventory
+                </p>
+            </div>
+            
+            <div class="how-to-play-section">
+                <h2 class="section-title">Characters</h2>
+                <p class="section-text">Each character has unique stats (Health, Attack, Shield) and a special ability. Choose wisely!</p>
+            </div>
+        </div>
+        
+    </div>
+{% endblock %}
+

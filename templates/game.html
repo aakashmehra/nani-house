@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Nani House - Game{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/board.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
+{% endblock %}
+{% block content %}
+<div class="game-container">
+
+    <!-- Settings Button (top-left) -->
+    <div class="settings-btn">
+        <img id="openSettings" src="{{ url_for('static', filename='img/buttons/settings_button.webp') }}" alt="Settings" height="50">
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="settings-modal hidden">
+        <div class="settings-popup">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="popup-bg">
+            <div class="popup-content">
+                <div class="popup-title">SETTINGS</div>
+                <button id="closeSettings" class="close-button">
+                    <img src="{{ url_for('static', filename='img/buttons/cancel_button.webp') }}" alt="close" height="30">
+                </button>
+                <div class="settings-content">
+                    <button id="exitGameBtn" class="exit-button">
+                        <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="exit" class="exit-button-bg">
+                        <span class="exit-button-text">Exit Game</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="game-info">
+        <div id="turnIndicator" class="turn-indicator"></div>
+    </div>
+    <!-- Flash Message Popup -->
+    <div id="flashMessage" class="flash-message hidden">
+        <div class="flash-message-content">
+            <span id="flashMessageText"></span>
+        </div>
+    </div>
+    <!-- 10x10 Board -->
+    <div class="board-wrap">
+        <div id="countdownOverlay" class="overlay">
+            <div class="overlay-inner">
+                <div class="overlay-label">Game Starting in...</div>
+                <div id="countNumber" class="overlay-number">3</div>
+            </div>
+        </div>
+
+        <div id="board" class="board" aria-hidden="true">
+            {% for r in range(10) %}
+                {% for c in range(10) %}
+                    <div class="cell" data-row="{{ r }}" data-col="{{ c }}"></div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class = "health-bar">
+        <div id="health-fill"></div>
+    </div>
+    <!-- Remote Control -->
+    <div id="gameRemote" class="game-remote hidden">
+        <img src="{{ url_for('static', filename='img/buttons/game_remote/REMOTE.webp') }}" alt="Remote" class="remote-bg">
+        <div class="remote-buttons">
+            <!-- UP - Roll -->
+            <button id="rollBtn" class="remote-btn remote-btn-up">
+                <img src="{{ url_for('static', filename='img/buttons/game_remote/UP.webp') }}" alt="Roll" class="remote-btn-img">
+                <span class="remote-btn-text">Roll</span>
+            </button>
+            <!-- DOWN - Ability -->
+            <button id="abilityBtn" class="remote-btn remote-btn-down">
+                <img src="{{ url_for('static', filename='img/buttons/game_remote/DOWN.webp') }}" alt="Ability" class="remote-btn-img">
+                <span class="remote-btn-text">Ability</span>
+            </button>
+            <!-- LEFT - Attack -->
+            <button id="attackBtn" class="remote-btn remote-btn-left">
+                <img src="{{ url_for('static', filename='img/buttons/game_remote/LEFT.webp') }}" alt="Attack" class="remote-btn-img">
+                <span class="remote-btn-text">Attack</span>
+            </button>
+            <!-- RIGHT - Items -->
+            <button id="itemsBtn" class="remote-btn remote-btn-right">
+                <img src="{{ url_for('static', filename='img/buttons/game_remote/RIGHT.webp') }}" alt="Items" class="remote-btn-img">
+                <span class="remote-btn-text">Items</span>
+            </button>
+        </div>
+    </div>
+    <!-- Bottom Right Roll Display (for all players' rolls) -->
+    <div class="roll-display-container">
+        <img src="{{ url_for('static', filename='img/buttons/game_remote/empty_box_circle.webp') }}" alt="Roll Display" class="roll-display-bg">
+        <div class="roll-display-content">
+            <div id="rollPlayerName" class="roll-display-name hidden"></div>
+            <div id="rollPlayerValue" class="roll-display-value hidden"></div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+    // Set window variables for game.js
+    window.AUTH_USER_ID = {% if AUTH_USER_ID %}{{ AUTH_USER_ID }}{% else %}null{% endif %};
+    window.MATCH_ID = {% if MATCH_ID %}"{{ MATCH_ID }}"{% else %}null{% endif %};
+    window.EXIT_GAME_URL = "{{ url_for('exit_game') }}";
+    window.CREATE_HOUSE_URL = "{{ url_for('create_house') }}";
+</script>
+<script src="{{ url_for('static', filename='js/game.js') }}"></script>
+
+{% endblock %}
+
+

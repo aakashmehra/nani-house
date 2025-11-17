@@ -1,0 +1,36 @@
+{
+  "match_id": "7ffd6fe0-de2b-43c1-8db4-ae8f8299ba52",
+  "satrted_at": "2025-11-17T14:09:39.756456",
+  "players": {
+    "2": {
+      "user": "sanal",
+      "id": 2,
+      "name": "Tontar",
+      "health": 110,
+      "shield": 0,
+      "dice_id": 1,
+      "position": [
+        7,
+        8
+      ]
+    },
+    "1": {
+      "user": "aakash",
+      "id": 1,
+      "name": "Ditte",
+      "health": 120,
+      "shield": 20,
+      "dice_id": 1,
+      "position": [
+        7,
+        9
+      ]
+    }
+  },
+  "player_count": 2,
+  "turn_order": [
+    "2",
+    "1"
+  ],
+  "current_turn_index": 0
+}

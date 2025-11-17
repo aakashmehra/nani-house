@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Nani House - Home{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/how_to_play.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="home-container">
+        <!-- Logo on top left -->
+        <div class="home-logo-top-left">
+            <img src="{{ url_for('static', filename='img/background/nani_house.webp') }}" alt="Nani House" class="home-logo-img">
+        </div>
+        
+        <!-- Navigation buttons on top right -->
+        <div class="home-nav-buttons">
+            <a href="{{ url_for('home') }}" class="home-nav-btn active">
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Home" class="home-nav-btn-img">
+                <span class="home-nav-btn-text">Home</span>
+            </a>
+            <a href="{{ url_for('how_to_play') }}" class="home-nav-btn">
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="How to Play" class="home-nav-btn-img">
+                <span class="home-nav-btn-text">How to Play</span>
+            </a>
+            <a href="{{ url_for('about') }}" class="home-nav-btn">
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="About" class="home-nav-btn-img">
+                <span class="home-nav-btn-text">About</span>
+            </a>
+        </div>
+        
+        <!-- Game Description Content -->
+        <div class="home-content">
+            <div class="home-welcome-section">
+                <h1 class="home-welcome-title">Welcome to Nani House</h1>
+                <p class="home-welcome-text">
+                    Experience the ultimate battle board game! Navigate through a 10×10 grid, 
+                    battle opponents, collect powerful items, and use unique character abilities. 
+                    Be the first to reach tile 100 or eliminate all your enemies to claim victory!
+                </p>
+                <p class="home-welcome-text">
+                    Choose your character wisely, roll the dice, and strategize your moves. 
+                    Every decision matters in this chaotic adventure where skill meets luck.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Play Now button at bottom center, floating -->
+        <div class="home-play-button">
+            <a href="{{ url_for('house_page') }}" class="play-now-link">
+                <img src="{{ url_for('static', filename='img/buttons/gold_button.webp') }}" alt="Play Now" class="play-now-bg">
+                <span class="play-now-text">Play Now</span>
+            </a>
+        </div>
+        
+    </div>
+{% endblock %}
+

@@ -1,0 +1,497 @@
+/* Authentication pages (login/signup) specific styles */
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+
+.auth-form {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5vh;
+    z-index: 10;
+    width: 80%;
+    max-width: 500px;
+}
+
+@media (min-width: 769px) {
+    .auth-form {
+        max-width: 460px;
+        gap: 1.5vh;
+    }
+}
+
+.form-field {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1vh;
+}
+
+@media (min-width: 769px) {
+    .form-field {
+        margin-bottom: 1.2vh;
+    }
+}
+
+.field-bg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+@media (min-width: 769px) {
+    .field-bg {
+        min-height: 46px;
+    }
+}
+
+.form-input {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+    color: rgb(255, 255, 255);
+    text-align: center;
+    padding: 10px;
+}
+
+@media (min-width: 769px) {
+    .form-input {
+        font-size: clamp(1.1rem, 1.4vw, 1.4rem);
+        padding: 12px;
+        width: 75%;
+    }
+}
+
+.form-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.auth-button {
+    width: clamp(16rem, 28vw, 22rem);
+    aspect-ratio: 3 / 1;
+    background-image: url('/static/img/buttons/button_primary.webp');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+
+    font-family: "Sansation", sans-serif;
+    color: grey;
+    font-size: clamp(1.6rem, 2.3vw, 1.8rem);
+    font-weight: bold;
+    text-decoration: none;
+    white-space: nowrap;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1vh auto 0;
+    padding: 0 10px;
+    box-sizing: border-box;
+
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+@media (min-width: 769px) {
+    .auth-button {
+        width: clamp(15.5rem, 19vw, 21.5rem);
+        font-size: clamp(1.4rem, 1.5vw, 1.7rem);
+        margin: 1.5vh auto 0;
+    }
+}
+
+.auth-button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.auth-link {
+    margin-top: 2vh;
+    text-align: center;
+}
+
+.auth-link p {
+    font-family: "Sansation", sans-serif;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+}
+
+@media (min-width: 769px) {
+    .auth-link {
+        margin-top: 2vh;
+    }
+    
+    .auth-link p {
+        font-size: clamp(1rem, 1.2vw, 1.1rem);
+    }
+}
+
+.auth-link a {
+    color: rgb(255, 255, 255);
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.auth-link a:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.error-message {
+    background-color: rgba(226, 59, 59, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    text-align: center;
+    margin: 1vh 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.friend-floating-btn {
+    position: absolute;
+    bottom: 5%;
+    right: 6%;
+    z-index: 120;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.friend-floating-btn img {
+    height: clamp(60px, 8vw, 80px);
+    width: auto;
+    display: block;
+}
+
+.friend-floating-btn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.05);
+}
+
+.friend-floating-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: #ff5353;
+    color: #fff;
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(0.8rem, 1.4vw, 1rem);
+    font-weight: bold;
+    border-radius: 999px;
+    padding: 2px 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.friend-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 150;
+}
+
+.friend-modal.hidden {
+    display: none;
+}
+
+.friend-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.friend-modal-panel {
+    position: relative;
+    width: min(90vw, 520px);
+    z-index: 151;
+}
+
+.friend-modal-bg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.friend-modal-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 6% 8% 18% 8%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.friend-modal-title {
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+    font-weight: bold;
+    color: grey;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    text-align: center;
+    margin-bottom: 0.8rem;
+}
+
+.friend-modal-close-btn {
+    position: absolute;
+    bottom: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.friend-modal-close-bg {
+    height: clamp(44px, 6vw, 52px);
+    width: auto;
+    display: block;
+    opacity: 0.95;
+}
+
+.friend-modal-close-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    font-weight: bold;
+    color: white;
+    pointer-events: none;
+}
+
+.friend-modal-close-btn:hover {
+    transform: translateX(-50%) scale(1.05);
+    filter: brightness(1.08);
+}
+
+.friend-modal-empty {
+    font-family: "Sansation", sans-serif;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: clamp(1rem, 1.6vw, 1.2rem);
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.friend-modal-feedback {
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.friend-modal-feedback[data-status="error"] {
+    color: #ff8888;
+}
+
+.friend-modal-feedback[data-status="success"] {
+    color: #8df7ba;
+}
+
+.friend-modal-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+}
+
+.friend-request-item {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.friend-request-text {
+    font-family: "Sansation", sans-serif;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    text-align: left;
+}
+
+.friend-request-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.friend-request-actions button {
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    font-weight: 600;
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.friend-request-actions button[data-action="accept"] {
+    background: rgba(141, 247, 186, 0.85);
+    color: #042b18;
+}
+
+.friend-request-actions button[data-action="reject"] {
+    background: rgba(255, 118, 118, 0.85);
+    color: #2b0404;
+}
+
+.friend-request-actions button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.05);
+}
+
+.friend-modal-list--cards {
+    gap: 0.9rem;
+}
+
+.friend-online-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0.9rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28);
+}
+
+.friend-online-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-align: left;
+}
+
+.friend-online-name {
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(1.05rem, 1.8vw, 1.4rem);
+    font-weight: 600;
+}
+
+.friend-online-meta {
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.friend-online-send {
+    position: relative;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.friend-online-send[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.friend-online-send-bg {
+    height: clamp(42px, 5.5vw, 50px);
+    width: auto;
+    display: block;
+}
+
+.friend-online-send-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "Sansation", sans-serif;
+    font-weight: bold;
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    color: grey;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.friend-online-send:hover:not([disabled]) {
+    transform: scale(1.05);
+    filter: brightness(1.05);
+}
+
+/* PC-specific improvements for auth pages */
+@media (min-width: 769px) {
+    /* Make auth pages scrollable on PC */
+    .menu-container {
+        min-height: 100vh;
+        height: auto;
+        overflow-y: auto;
+    }
+    
+    /* Better title positioning for PC */
+    .menu-container .title {
+        top: 6%;
+        font-size: clamp(2.7rem, 3.8vw, 3.8rem);
+    }
+    
+    /* Ensure single-line title displays correctly */
+    .menu-container .title.title-single-line {
+        white-space: nowrap;
+        display: block;
+    }
+    
+    /* Adjust auth form for scrollable layout */
+    .auth-form {
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
+        margin: clamp(120px, 15vh, 180px) auto 5vh;
+    }
+    
+    /* Better back button positioning for PC */
+    .menu-container .back-button {
+        bottom: 5%;
+        left: 4%;
+    }
+    
+    .menu-container .back-button img {
+        height: 92px !important;
+    }
+    
+    /* Better error message styling for PC */
+    .error-message {
+        font-size: clamp(0.9rem, 1vw, 1rem);
+        padding: 10px 20px;
+    }
+}
+

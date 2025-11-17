@@ -1,0 +1,289 @@
+/* Shop page specific styles - extends grid_page.css */
+.menu-container .title {
+    top: 15px;
+    margin-top: 15px;
+}
+
+/* Shop Section Buttons */
+.shop-buttons {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2vh;
+    z-index: 10;
+}
+
+.shop-section-btn {
+    display: inline-block;
+    width: clamp(16rem, 28vw, 22rem);
+    aspect-ratio: 3 / 1;
+    background-image: url('/static/img/buttons/button_primary.webp');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-family: "Sansation", sans-serif;
+    color: grey;
+    font-size: clamp(1.8rem, 2.5vw, 1.5rem);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.shop-section-btn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Packs button styling - red like inventory */
+.shop-section-btn-packs {
+    color: #85231c;
+    filter: hue-rotate(0deg) saturate(1.2) brightness(0.9);
+}
+
+.shop-item-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shop-popup-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    position: relative;
+    z-index: 1;
+}
+
+.shop-content {
+    position: absolute;
+    top: 8%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-family: 'Sansation', sans-serif;
+    color: white;
+    width: 80%;
+    z-index: 2;
+}
+
+.shop-name {
+    font-size: clamp(1rem, 1.5vw, 1.3rem);
+    font-weight: bold;
+    margin-bottom: 0.5vh;
+}
+
+.shop-cost {
+    font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.shop-coin-display {
+    position: absolute;
+    bottom: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    z-index: 3;
+}
+
+.shop-coin-value {
+    font-family: 'Sansation', sans-serif;
+    color: white;
+    font-size: clamp(1rem, 1.5vw, 1.3rem);
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.shop-coin-display .shop-coin-image {
+    height: clamp(15px, 2vw, 25px) !important;
+    width: auto !important;
+    max-width: clamp(15px, 2vw, 25px) !important;
+}
+
+.shop-button {
+    position: absolute;
+    bottom: 8%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-image: url('/static/img/buttons/gold_button.webp');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s ease, filter 0.2s ease;
+    z-index: 3;
+    
+    /* Text styling */
+    font-family: 'Sansation', sans-serif;
+    color: grey;
+    font-size: clamp(1.38rem, 1.85vw, 1.69rem);
+    font-weight: bold;
+    
+    /* Button dimensions */
+    width: clamp(123px, 18.5vw, 185px);
+    height: clamp(46px, 6.9vw, 69px);
+    
+    /* Center text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shop-button:hover:not(:disabled) {
+    transform: translateX(-50%) scale(1.1);
+    filter: brightness(1.2);
+}
+
+.shop-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+}
+
+/* ===== Shop Popup Modal ===== */
+.shop-popup-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.shop-popup-modal.hidden {
+    display: none;
+}
+
+.shop-popup-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: all;
+}
+
+.shop-popup-content {
+    position: relative;
+    width: clamp(300px, 50vw, 500px);
+    max-width: 90vw;
+    z-index: 1001;
+    pointer-events: all;
+}
+
+.shop-popup-bg-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+
+.shop-popup-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(20px, 5vw, 40px);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.shop-popup-title {
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: bold;
+    color: grey;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin-bottom: clamp(15px, 3vw, 25px);
+}
+
+.shop-popup-message {
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    margin-bottom: clamp(20px, 4vw, 30px);
+    line-height: 1.4;
+}
+
+.shop-popup-button {
+    background-image: url('/static/img/buttons/gold_button.webp');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: 'Sansation', sans-serif;
+    color: grey;
+    font-size: clamp(1rem, 1.5vw, 1.3rem);
+    font-weight: bold;
+    width: clamp(100px, 20vw, 150px);
+    height: clamp(35px, 5vw, 50px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.shop-popup-button:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}
+
+.shop-popup-buttons {
+    display: flex;
+    gap: clamp(15px, 3vw, 25px);
+    align-items: center;
+    justify-content: center;
+}
+
+.shop-popup-cancel {
+    background-image: url('/static/img/buttons/button_primary.webp');
+}
+
+.shop-popup-confirm {
+    background-image: url('/static/img/buttons/gold_button.webp');
+}
+
+/* Animation */
+@keyframes popup-entrance {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.shop-popup-content {
+    animation: popup-entrance 0.3s ease;
+}

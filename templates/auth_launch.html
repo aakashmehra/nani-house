@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Nani House - Launch{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/launch.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="menu-container">
+        <div class="title">
+            <img src="{{ url_for('static', filename='img/background/nani_house.webp') }}" alt="Nani House" class="nani-house-logo">
+        </div>
+        <div class="launch-buttons">
+            <a href="{{ url_for('auth.login') }}" class="launch-button login-btn">LOGIN</a>
+            <a href="{{ url_for('auth.signup') }}" class="launch-button signup-btn">CREATE ACCOUNT</a>
+            <a href="{{ url_for('auth.guest_play') }}" class="guest-play-link">GUEST PLAY</a>
+        </div>
+    </div>
+{% endblock %}
+

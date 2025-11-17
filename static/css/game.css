@@ -1,0 +1,427 @@
+/* game.css - overlay & countdown visuals */
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(12, 18, 28, 0.60);
+    z-index: 30;
+    transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.overlay-inner {
+    text-align: center;
+    color: #fff;
+    padding: 1.25rem 2rem;
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* small label above the number */
+.overlay-label {
+    font-size: 1.05rem;
+    opacity: 0.95;
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+}
+
+/* main countdown number */
+.overlay-number {
+    font-family: 'Alfa Slab One', system-ui, sans-serif;
+    font-size: clamp(48px, 10vw, 120px);
+    line-height: 1;
+    letter-spacing: -2px;
+    text-shadow: 0 6px 22px rgba(0,0,0,0.45);
+    display: inline-block;
+    transition: transform 180ms ease, opacity 180ms ease;
+}
+
+/* tiny sub text below */
+.overlay-sub {
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+/* pop animation applied via class when number changes */
+.pop {
+    transform: scale(1.12);
+    transition: transform 160ms cubic-bezier(.2,.9,.3,1);
+}
+
+/* fade out overlay when game begins */
+.overlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+}
+
+/* optional subtle entrance animation */
+@keyframes overlay-entrance {
+    from { transform: translateY(8px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+.overlay-inner { animation: overlay-entrance 420ms ease; }
+
+/* ===== Settings Button ===== */
+.settings-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 40;
+    cursor: pointer;
+}
+.settings-btn img:hover {
+    transform: scale(1.05);
+    transition: transform 0.15s ease;
+}
+
+/* ===== Settings Modal ===== */
+.settings-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+.settings-modal.hidden {
+    display: none;
+}
+
+.settings-popup {
+    position: relative;
+    width: 80%;
+    max-width: 600px;
+    z-index: 101;
+}
+
+.popup-bg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.popup-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 5%;
+    box-sizing: border-box;
+}
+
+.popup-title {
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: bold;
+    color: grey;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.close-button {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    z-index: 102;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.close-button:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}
+
+.settings-content {
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.exit-button {
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.exit-button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.exit-button-bg {
+    height: clamp(40px, 5vw, 50px);
+    width: auto;
+    display: block;
+}
+
+.exit-button-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+    font-weight: bold;
+    color: white;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* Game Remote Control */
+.game-remote {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 150;
+    transition: opacity 0.3s ease;
+}
+
+.game-remote.hidden {
+    display: none;
+}
+
+.remote-bg {
+    width: clamp(300px, 40vw, 500px);
+    height: auto;
+    display: block;
+}
+
+.remote-buttons {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 0;
+    pointer-events: none;
+}
+
+.remote-btn {
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    transition: opacity 0.2s ease;
+}
+
+.remote-btn:hover {
+    opacity: 0.6;
+}
+
+.remote-btn:active {
+    opacity: 0.8;
+}
+
+.remote-btn-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: opacity 0.2s ease;
+}
+
+.remote-btn-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+/* Position buttons in grid */
+.remote-btn-up {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.remote-btn-down {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.remote-btn-left {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.remote-btn-right {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+/* Bottom Right Roll Display (for all players' rolls) */
+.roll-display-container {
+    position: fixed;
+    bottom: 5%;
+    right: 2%;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.roll-display-bg {
+    width: clamp(90px, 11.25vw, 135px);
+    height: auto;
+    display: block;
+}
+
+.roll-display-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.roll-display-name {
+    position: absolute;
+    top: -30%;
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(1.35rem, 2.25vw, 1.8rem);
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    text-align: center;
+    white-space: nowrap;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.roll-display-name.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.roll-display-value {
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: bold;
+    color: white;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+    text-align: center;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.roll-display-value.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.turn-indicator{
+    position: absolute;
+    top: 10px;
+    right: 50%;
+    transform: translateX(50%);
+    font-family: 'Sansation', sans-serif;
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    z-index: 20;
+}
+
+/* Flash Message Popup */
+.flash-message {
+    position: fixed;
+    top: 8%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.flash-message.hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+    pointer-events: none;
+}
+
+.flash-message-content {
+    background: rgba(40, 40, 40, 0.95);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    min-width: 250px;
+    text-align: center;
+}
+
+.flash-message-content span {
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(1rem, 1.8vw, 1.3rem);
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+    display: block;
+}
+
+
+.health-bar {
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    width: 200px;
+    height: 25px;
+    background-color: #555;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 20;
+}
+
+#health-fill {
+    height: 100%;
+    width: 100%;
+    background-color: #4CAF50;
+    transition: width 0.5s ease, background-color 0.5s ease;
+}

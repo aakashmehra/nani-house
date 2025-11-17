@@ -1,0 +1,79 @@
+/* Inventory page specific styles */
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+
+.inventory-buttons {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2vh;
+    z-index: 10;
+}
+
+.inventory-button {
+    display: inline-block;
+    width: clamp(16rem, 28vw, 22rem);
+    aspect-ratio: 3 / 1;
+    background-image: url('/static/img/buttons/button_primary.webp');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+
+    font-family: "Sansation", sans-serif;
+    color: grey;
+    font-size: clamp(1.8rem, 2.5vw, 1.5rem);
+    font-weight: bold;
+    text-decoration: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.inventory-button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.inventory-button.packs-btn {
+    color: #85231c;
+    filter: hue-rotate(0deg) saturate(1.2) brightness(0.9);
+}
+
+@media (min-width: 769px) {
+    
+.inventory-buttons {
+    position: absolute;
+    padding-top: 10vh;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2vh;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+
+.inventory-buttons {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2vh;
+    z-index: 10;
+}
+}

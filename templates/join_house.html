@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Nani House - Join House{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/grid_page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="menu-container">
+        <div class="title" style="text-align: center;">
+            <span class="title-single-line">JOIN HOUSE</span>
+        </div>
+        <div class="back-button">
+            <a href="{{ url_for('house_page') }}"><img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="100"></a>
+        </div>
+        <div class="auth-form">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div style="font-family: 'Sansation', sans-serif; color: rgba(255, 255, 255, 0.9); font-size: clamp(0.9rem, 1.5vw, 1.1rem); text-align: center; margin-bottom: 1vh;">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <form method="POST" action="{{ url_for('join_house') }}">
+                <div class="form-field">
+                    <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="field-bg">
+                    <input type="text" name="house_code" class="form-input" placeholder="Enter House Code" maxlength="10" required style="text-transform: uppercase;">
+                </div>
+                <button type="submit" class="auth-button">JOIN HOUSE</button>
+            </form>
+        </div>
+    </div>
+    <button type="button" id="friendOnlineButton" class="friend-floating-btn">
+        <img src="{{ url_for('static', filename='img/buttons/add_friend.webp') }}" alt="Friends Online" class="friend-floating-icon">
+        <span id="friendOnlineBadge" class="friend-floating-badge hidden">(0)</span>
+    </button>
+    <div id="friendOnlineModal" class="friend-modal hidden">
+        <div class="friend-modal-overlay" id="friendOnlineOverlay"></div>
+        <div class="friend-modal-panel">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup background" class="friend-modal-bg">
+            <div class="friend-modal-inner">
+                <button type="button" id="friendOnlineClose" class="friend-modal-close-btn">
+                    <img src="{{ url_for('static', filename='img/buttons/cancel_button.webp') }}" alt="Close" class="friend-modal-close-bg">
+                    <span class="friend-modal-close-text">CANCEL</span>
+                </button>
+                <div class="friend-modal-title">Friends Online</div>
+                <div id="friendOnlineFeedback" class="friend-modal-feedback hidden"></div>
+                <div id="friendOnlineEmpty" class="friend-modal-empty">No friends are online right now.</div>
+                <div id="friendOnlineList" class="friend-modal-list friend-modal-list--cards"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+    window.HOUSE_CODE = "{{ joined_house_code|default('') }}";
+    window.AUTH_USER_ID = "{{ session.get('user_id')|default('') }}";
+    window.PAGE_CONTEXT = 'join_house';
+    </script>
+    <script>
+    window.addEventListener("pageshow", function(event) {
+    // Detect browser back/forward navigation
+    if (event.persisted) {
+        // Immediately redirect to create_house
+        window.location.replace("{{ url_for('create_house') }}");
+    }
+    });
+    </script>
+    <script src="{{ url_for('static', filename='js/friend_house_requests.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/house_socket.js') }}"></script>
+
+
+{% endblock %}
+

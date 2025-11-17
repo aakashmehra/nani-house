@@ -1,0 +1,36 @@
+{
+  "match_id": "3e8e108e-aaa8-4bfb-b949-03645c70e9e5",
+  "satrted_at": "2025-11-17T09:16:25.225333",
+  "players": {
+    "1": {
+      "user": "aakash",
+      "id": 2,
+      "name": "Tontar",
+      "health": 110,
+      "shield": 0,
+      "dice_id": 1,
+      "position": [
+        7,
+        6
+      ]
+    },
+    "4": {
+      "user": "melonsoda",
+      "id": 2,
+      "name": "Tontar",
+      "health": 110,
+      "shield": 0,
+      "dice_id": 1,
+      "position": [
+        9,
+        7
+      ]
+    }
+  },
+  "player_count": 2,
+  "turn_order": [
+    "1",
+    "4"
+  ],
+  "current_turn_index": 0
+}

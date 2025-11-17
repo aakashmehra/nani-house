@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} - Nani House{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/grid_page.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="menu-container">
+        <div class="title">{{ page_title }}</div>
+        <div class="coin-section">
+            <div class="coin_value">{{ coin_value }}</div>
+            <div class="coins"><img src="{{ url_for('static', filename='img/buttons/pippa_coin.webp') }}" alt="coins" height="50"></div>
+        </div>
+        <div class="back-button">
+            <a href="{{ back_url }}"><img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="100"></a>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div style="position: fixed; top: 10%; left: 50%; transform: translateX(-50%); z-index: 1000; text-align: center;">
+                    {% for category, message in messages %}
+                        <div style="font-family: 'Sansation', sans-serif; color: {% if category == 'error' %}red{% else %}green{% endif %}; font-size: clamp(1rem, 2vw, 1.5rem); font-weight: bold; background: rgba(0, 0, 0, 0.8); padding: 1rem 2rem; border-radius: 8px; margin-bottom: 0.5rem;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <div class="grid-container">
+            {% if items and items|length > 0 %}
+                {% for item in items %}
+                <div class="grid-item">
+                    <div class="item-card {% if item.is_locked %}item-locked{% endif %} {% if item.is_equipped %}item-equipped{% endif %}">
+                        <!-- Your existing container frame -->
+                        <img src="{{ url_for('static', filename='img/characters/characters_container.webp') }}"
+                            alt="{{ page_title }} Item"
+                            class="container-bg">
+
+                        <!-- Character name at top -->
+                        <div class="item-name-top">
+                            <div class="item-name">{{ item.name }}</div>
+                        </div>
+
+                        <!-- Actual inventory item image -->
+                        <img src="{{ url_for('static', filename=item.image) }}"
+                            alt="{{ item.name }}"
+                            class="item-image {% if item.is_locked and not item.is_equipped %}item-image-locked{% endif %}">
+
+                        <!-- Lock icon at bottom center for locked characters -->
+                        {% if item.is_locked and not item.is_equipped %}
+                        <div class="locked-button-center">
+                            <img src="{{ url_for('static', filename='img/buttons/lock.webp') }}" alt="locked" class="locked-icon">
+                        </div>
+                        {% endif %}
+
+                        <!-- Equip button at bottom of card (CHARACTERS only, not equipped) -->
+                        {% if page_title == 'CHARACTERS' and not item.is_equipped %}
+                        <div class="item-equip-button-container">
+                            <button class="item-equip-btn equip-character" data-character-id="{{ item.def_id }}" data-is-locked="{{ 'true' if item.is_locked else 'false' }}">
+                                <img src="{{ url_for('static', filename='img/buttons/gold_button.webp') }}" alt="equip" class="item-equip-btn-img">
+                                <span class="item-equip-btn-text">Equip</span>
+                            </button>
+                        </div>
+                        {% elif page_title == 'CHARACTERS' and item.is_equipped %}
+                        <div class="item-equip-button-container">
+                            <button class="item-equip-btn equip-character" data-character-id="{{ item.def_id }}">
+                                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="equip" class="item-equip-btn-img">
+                                <span class="item-equip-btn-text">Equipped</span>
+                            </button>
+                        </div>
+                        {% endif %}
+
+                        <!-- Optional buttons (PACKS and DICE) -->
+                        <div class="item-actions">
+                            {% if page_title == 'PACKS' %}
+                                <div class="item-action-wrapper">
+                                    {% if item.price %}
+                                    <div class="item-price">{{ item.price }}</div>
+                                    {% endif %}
+                                    <button class="item-action-btn buy-button open-pack" data-player-item-id="{{ item.player_item_id }}">
+                                        <img src="{{ url_for('static', filename='img/buttons/gold_button.webp') }}" alt="buy" class="item-action-btn-img">
+                                        <span class="item-action-btn-text">Open</span>
+                                    </button>
+                                </div>
+                            {% elif page_title == 'DICE' %}
+                                <div class="item-action-wrapper">
+                                    {% if item.price %}
+                                    <div class="item-price">{{ item.price }}</div>
+                                    {% endif %}
+                                    <button class="item-action-btn buy-button use-dice" data-player-item-id="{{ item.player_item_id }}">
+                                        <img src="{{ url_for('static', filename='img/buttons/gold_button.webp') }}" alt="buy" class="item-action-btn-img">
+                                        <span class="item-action-btn-text">Use</span>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No items in this inventory yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
+
+    </div>
+    
+    <!-- Custom Popup Modal for Characters -->
+    {% if page_title == 'CHARACTERS' %}
+    <div id="character-popup" class="character-popup-modal hidden">
+        <div class="character-popup-overlay"></div>
+        <div class="character-popup-content">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="character-popup-bg-img">
+            <div class="character-popup-inner">
+                <div class="character-popup-title" id="character-popup-title">Error</div>
+                <div class="character-popup-message" id="character-popup-message"></div>
+                <button class="character-popup-button" id="character-popup-ok">OK</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if page_title == 'CHARACTERS' %}
+    <script>
+    console.log('CHARACTERS page script loading...');
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM loaded, setting up equip buttons...');
+        const cards = document.querySelectorAll('.grid-item .item-card');
+        console.log('Found cards:', cards.length);
+
+        // Popup elements
+        const popup = document.getElementById('character-popup');
+        const popupTitle = document.getElementById('character-popup-title');
+        const popupMessage = document.getElementById('character-popup-message');
+        const popupOkButton = document.getElementById('character-popup-ok');
+        const popupOverlay = document.querySelector('.character-popup-overlay');
+
+        // Show popup function
+        function showPopup(title, message) {
+            popupTitle.textContent = title;
+            popupMessage.textContent = message;
+            popup.classList.remove('hidden');
+        }
+
+        // Hide popup function
+        function hidePopup() {
+            popup.classList.add('hidden');
+        }
+
+        // Close popup when OK button or overlay is clicked
+        if (popupOkButton) {
+            popupOkButton.addEventListener('click', hidePopup);
+        }
+        if (popupOverlay) {
+            popupOverlay.addEventListener('click', hidePopup);
+        }
+
+        function clearEquippedState() {
+            cards.forEach(card => {
+                card.classList.remove('item-equipped');
+                // Remove any existing equip buttons
+                const equipContainer = card.querySelector('.item-equip-button-container');
+                if (equipContainer) {
+                    equipContainer.remove();
+                }
+            });
+        }
+
+        const equipButtons = document.querySelectorAll('.equip-character');
+        console.log('Found equip buttons:', equipButtons.length);
+        
+        equipButtons.forEach((button, index) => {
+            if (button.disabled) {
+                console.log(`Button ${index} is disabled, skipping`);
+                return;
+            }
+
+            console.log(`Setting up button ${index}, character ID:`, button.dataset.characterId);
+            
+            button.addEventListener('click', async (e) => {
+                console.log('Equip button clicked!');
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const characterId = button.dataset.characterId;
+                const isLocked = button.dataset.isLocked === 'true';
+                
+                console.log('Character ID:', characterId, 'Is Locked:', isLocked);
+                
+                if (!characterId) {
+                    console.error('Character ID is missing!');
+                    showPopup('Error', 'Character ID is missing!');
+                    return;
+                }
+
+                // Check if character is locked (multiple ways)
+                const card = button.closest('.item-card');
+                const cardIsLocked = card && card.classList.contains('item-locked');
+                
+                console.log('Card is locked (class check):', cardIsLocked);
+                console.log('Button data is locked:', isLocked);
+                
+                if (isLocked || cardIsLocked) {
+                    console.log('Character is locked, showing error');
+                    showPopup('Error', 'You cannot equip a character that you have not unlocked yet!');
+                    return;
+                }
+
+                const buttonText = button.querySelector('.item-equip-btn-text');
+                const originalText = buttonText ? buttonText.textContent : 'Equip';
+                button.disabled = true;
+                if (buttonText) buttonText.textContent = 'Equipping...';
+
+                try {
+                    console.log('Sending equip request for character:', characterId);
+                    const resp = await fetch('/equip_character', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ character_id: characterId })
+                    });
+                    
+                    console.log('Response status:', resp.status);
+                    
+                    let data;
+                    try {
+                        data = await resp.json();
+                        console.log('Response data:', data);
+                    } catch (jsonErr) {
+                        console.error('Failed to parse JSON response:', jsonErr);
+                        showPopup('Error', 'Server returned an invalid response. Please try again.');
+                        button.disabled = false;
+                        if (buttonText) buttonText.textContent = originalText;
+                        return;
+                    }
+
+                    if (!resp.ok || !data.success) {
+                        console.log('Equip failed:', data.error);
+                        let errorTitle = 'Error';
+                        let errorMessage = 'Failed to equip character.';
+                        if (data.error === 'character_not_owned') {
+                            errorMessage = 'You cannot equip a character that you have not unlocked yet!';
+                        } else if (data.error === 'character_not_found') {
+                            errorMessage = 'Character not found!';
+                        } else if (data.error) {
+                            errorMessage = data.error;
+                        }
+                        showPopup(errorTitle, errorMessage);
+                        button.disabled = false;
+                        if (buttonText) buttonText.textContent = originalText;
+                        return;
+                    }
+
+                    console.log('Equip successful!');
+                    // Success - update UI
+                    clearEquippedState();
+
+                    if (card) {
+                        card.classList.add('item-equipped');
+                    }
+                    // Remove the equip button container after equipping
+                    const equipContainer = button.closest('.item-equip-button-container');
+                    if (equipContainer) {
+                        equipContainer.remove();
+                    }
+                } catch (err) {
+                    console.error('Equip error:', err);
+                    showPopup('Error', err.message || 'Unable to equip character. Please try again.');
+                    button.disabled = false;
+                    if (buttonText) buttonText.textContent = originalText;
+                }
+            });
+            
+            console.log(`Button ${index} event listener attached`);
+        });
+        
+        console.log('All equip buttons set up');
+    });
+    </script>
+    {% endif %}
+{% endblock %}
+

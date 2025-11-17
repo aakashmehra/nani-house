@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Nani House - Login{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/grid_page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="menu-container">
+        <div class="title">LOGIN</div>
+        <div class="back-button">
+            <a href="{{ url_for('auth.launch') }}"><img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="100"></a>
+        </div>
+        <div class="auth-form">
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="form-field">
+                    <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="field-bg">
+                    <input type="text" name="username" class="form-input" placeholder="Username" required>
+                </div>
+                <div class="form-field">
+                    <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="field-bg">
+                    <input type="password" name="password" class="form-input" placeholder="Password" required>
+                </div>
+                {% if error %}
+                <div class="error-message">{{ error }}</div>
+                {% endif %}
+                <button type="submit" class="auth-button">LOGIN</button>
+            </form>
+            <div class="auth-link">
+                <p>Don't have an account? <a href="{{ url_for('auth.signup') }}">Create Account</a></p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

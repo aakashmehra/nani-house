@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Create House{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/grid_page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="menu-container">
+        <div class="title" style="text-align: center;">
+            {% if user_house %}
+                <span class="title-single-line">MY HOUSE</span>
+            {% else %}
+                <span class="title-single-line">CREATE HOUSE</span>
+            {% endif %}
+        </div>
+        <div class="back-button">
+            <a href="{{ url_for('house_page') }}"><img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="100"></a>
+        </div>
+        <div class="auth-form">
+            {% if user_house %}
+                {% if is_creator %}
+                    <div style="margin-top: 2vh; width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div style="font-family: 'Sansation', sans-serif; color: rgba(255, 255, 255, 0.9); font-size: clamp(1.5rem, 2.5vw, 2rem); margin-bottom: 1.5vh; font-weight: bold;">
+                            <strong>Name:</strong> {{ user_house.name }}
+                        </div>
+                        <div style="font-family: 'Sansation', sans-serif; color: rgba(255, 255, 255, 0.9); font-size: clamp(1.5rem, 2.5vw, 2rem); margin-bottom: 1.5vh; font-weight: bold;">
+                            <strong>Code:</strong> {{ user_house.house_code }}
+                        </div>
+
+                        <!-- Players count (updatable by socket) -->
+                        <div style="font-family: 'Sansation', sans-serif; color: rgba(255, 255, 255, 0.9); font-size: clamp(1.5rem, 2.5vw, 2rem); margin-bottom: 1.5vh; font-weight: bold;">
+                            <strong>Players:</strong>
+                            <span id="players-count">{{ user_house.current_players or 0 }}</span> / {{ user_house.max_players }}
+                        </div>
+
+                        <div style="font-family: 'Sansation', sans-serif; color: rgba(255, 255, 255, 0.9); font-size: clamp(1.5rem, 2.5vw, 2rem); margin-bottom: 2vh; font-weight: bold;">
+                            <strong>Status:</strong> {{ user_house.status }}
+                        </div>
+
+                        <!-- Optional players list (pre-filled if house_players provided) -->
+                        <ul id="players-list" style="list-style:none; padding:0; margin: 0.5rem 0 1.5rem 0;">
+                            {% for hp in house_players|default([]) %}
+                                <li data-player-id="{{ hp.player_id }}" style="font-family: 'Sansation', sans-serif; color: rgba(255,255,255,0.85); font-size: clamp(0.9rem, 1.6vw, 1.1rem);">
+                                    {{ hp.player.user.username if hp.player and hp.player.user else 'Player' }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+                        <div id="start-game-wrapper" style="margin-bottom: 2vh; {{ '' if (user_house and (user_house.current_players or 0) > 1) else 'display:none;' }}">
+                            <form id="start-game-form" method="POST" action="{{ url_for('create_house') }}">
+                                <input type="hidden" name="action" value="start_game">
+                                <button type="submit" class="auth-button">START GAME</button>
+                            </form>
+                        </div>
+                        <form method="POST" action="{{ url_for('delete_house', house_id=user_house.id) }}" style="margin-top: 2vh; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5vh;">
+                            <button type="submit" style="background: transparent; border: none; cursor: pointer; padding: 0; position: relative;" onclick="return confirm('Are you sure you want to delete your house?');">
+                                <img src="{{ url_for('static', filename='img/buttons/cancel_button.webp') }}" alt="Delete House" height="50">
+                                <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Sansation', sans-serif; color: white; font-size: clamp(0.8rem, 1.2vw, 1rem); font-weight: bold; pointer-events: none;">DELETE</span>
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div style="margin-top: 2vh; width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div style="font-family: 'Sansation', sans-serif; color: rgba(255, 255, 255, 0.9); font-size: clamp(1.8rem, 3vw, 2.5rem); margin-bottom: 2vh; font-weight: bold;">
+                            WAITING FOR THE GAME TO START
+                        </div>
+                        <div style="font-family: 'Sansation', sans-serif; color: rgba(255, 255, 255, 0.8); font-size: clamp(1.2rem, 2vw, 1.6rem); margin-bottom: 1vh;">
+                            <strong>House:</strong> {{ user_house.name }}
+                        </div>
+                        <div style="font-family: 'Sansation', sans-serif; color: rgba(255, 255, 255, 0.8); font-size: clamp(1.2rem, 2vw, 1.6rem); margin-bottom: 1vh;">
+                            <strong>Code:</strong> {{ user_house.house_code }}
+                        </div>
+
+                        <!-- Players count for non-creator view -->
+                        <div style="font-family: 'Sansation', sans-serif; color: rgba(255, 255, 255, 0.8); font-size: clamp(1.2rem, 2vw, 1.6rem); margin-bottom: 1vh;">
+                            <strong>Players:</strong>
+                            <span id="players-count">{{ user_house.current_players or 0 }}</span> / {{ user_house.max_players }}
+                        </div>
+
+                        <!-- Optional players list (non-creator) -->
+                        <ul id="players-list" style="list-style:none; padding:0; margin: 0.5rem 0;">
+                            {% for hp in house_players|default([]) %}
+                                <li data-player-id="{{ hp.player_id }}" style="font-family: 'Sansation', sans-serif; color: rgba(255,255,255,0.85); font-size: clamp(0.9rem, 1.6vw, 1.1rem);">
+                                    {{ hp.player.user.username if hp.player and hp.player.user else 'Player' }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            {% else %}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div style="font-family: 'Sansation', sans-serif; color: rgba(255, 255, 255, 0.9); font-size: clamp(0.9rem, 1.5vw, 1.1rem); text-align: center; margin-bottom: 1vh;">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form method="POST" action="{{ url_for('create_house') }}">
+                    <div class="form-field">
+                        <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="field-bg">
+                        <input type="text" name="house_name" class="form-input" placeholder="House Name (optional)" maxlength="100">
+                    </div>
+                    <button type="submit" class="auth-button">CREATE HOUSE</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    {% if user_house and is_creator %}
+    <button type="button" id="friendRequestButton" class="friend-floating-btn">
+        <img src="{{ url_for('static', filename='img/buttons/add_friend.webp') }}" alt="Friend Join Requests" class="friend-floating-icon">
+        <span id="friendRequestBadge" class="friend-floating-badge hidden">(0)</span>
+    </button>
+    <div id="friendRequestModal" class="friend-modal hidden">
+        <div class="friend-modal-overlay" id="friendRequestOverlay"></div>
+        <div class="friend-modal-panel">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup background" class="friend-modal-bg">
+            <div class="friend-modal-inner">
+                <button type="button" id="friendRequestClose" class="friend-modal-close-btn">
+                    <img src="{{ url_for('static', filename='img/buttons/cancel_button.webp') }}" alt="Close" class="friend-modal-close-bg">
+                    <span class="friend-modal-close-text">CANCEL</span>
+                </button>
+                <div class="friend-modal-title">Friend Join Requests</div>
+                <div id="friendRequestEmpty" class="friend-modal-empty">No pending requests.</div>
+                <ul id="friendRequestList" class="friend-modal-list"></ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+    // Only set HOUSE_CODE if a house actually exists
+    {% if user_house %}
+    window.HOUSE_CODE = "{{ user_house.house_code }}";
+    {% elif joined_house %}
+    window.HOUSE_CODE = "{{ joined_house.house_code }}";
+    {% else %}
+    window.HOUSE_CODE = "";
+    {% endif %}
+    window.AUTH_USER_ID = "{{ session.get('user_id')|default('') }}";
+    </script>
+    {% if user_house or joined_house %}
+    <script src="{{ url_for('static', filename='js/house_socket.js') }}"></script>
+    {% endif %}
+    <script>
+    window.PAGE_CONTEXT = 'create_house';
+    window.IS_HOUSE_CREATOR = {{ 'true' if is_creator else 'false' }};
+    </script>
+    <script src="{{ url_for('static', filename='js/friend_house_requests.js') }}"></script>
+
+
+{% endblock %}
+

@@ -1,0 +1,547 @@
+/* Common grid page styles (characters, dice, packs, shop) */
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+
+.menu-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+.title {
+    position: absolute;
+    top: 4%;
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(2.8rem, 8vw, 6rem);
+    width: 100%;
+    font-weight: bold;
+    text-align: center;
+    color: grey;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    line-height: 1.2;
+    z-index: 10;
+}
+
+.title:not(:has(> div)) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.title > div {
+    white-space: nowrap;
+    display: block;
+}
+
+.title-single-line {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+@media (min-width: 769px) {
+    .title-single-line {
+        display: inline;
+    }
+}
+
+.coin-section {
+    position: fixed;
+    top: 5%;
+    right: 5%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 20;
+}
+
+.coin_value {
+    font-family: "Sansation", sans-serif;
+    color: rgb(255, 255, 255);
+    font-size: clamp(1.8rem, 2.5vw, 1.5rem);
+    font-weight: bold;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.coins {
+    display: flex;
+    align-items: center;
+}
+
+.back-button {
+    position: fixed;
+    bottom: 4%;
+    left: 6%;
+    z-index: 100;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.back-button img {
+    height: 100px !important;
+}
+
+.back-button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.grid-container {
+    position: absolute;
+    top: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 4px;
+    z-index: 10;
+    width: 90%;
+    max-width: 800px;
+    height: 65vh;
+    padding: 2px;
+    box-sizing: border-box;
+}
+
+@media (min-width: 769px) {
+    .grid-container {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: auto;
+        max-width: 1200px;
+    }
+}
+
+.grid-item {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-item img:not(.locked-icon) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    transform: scale(1.0);
+}
+
+/* === INVENTORY OVERLAY ELEMENTS === */
+
+.item-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Your container (already handled by .grid-item img) remains visible behind this overlay */
+.container-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* Actual item icon (character / dice / chest) centered inside the container */
+.item-image {
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+    max-width: 60%;
+    max-height: 60%;
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 4;
+}
+
+/* Equip button container at bottom of card (CHARACTERS only) */
+.item-equip-button-container {
+    position: absolute;
+    max-width: 25%;
+    bottom: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+}
+
+.item-equip-btn {
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, filter 0.2s ease;
+    pointer-events: auto;
+    z-index: 11;
+}
+
+.item-equip-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.item-equip-btn-img {
+    height: clamp(40px, 5vw, 55px);
+    width: auto;
+    display: block;
+    pointer-events: none;
+}
+
+.item-equip-btn-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(0.8rem, 1.2vw, 1rem);
+    font-weight: bold;
+    color: grey;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.item-equip-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Character name at top */
+.item-name-top {
+    position: absolute;
+    top: 7%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 3;
+}
+
+.item-name-top .item-name {
+    color: white;
+    font-family: "Sansation", sans-serif;
+    font-weight: bold;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
+    font-size: clamp(1rem, 1.8vw, 1.5rem);
+}
+
+/* Action buttons (equip / open / use) bottom right of the card */
+.item-actions {
+    position: absolute;
+    bottom: 6%;
+    right: 6%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5vh;
+}
+
+.item-action-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3vh;
+}
+
+.item-price {
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(0.8rem, 1.2vw, 1rem);
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.item-action-btn {
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.item-action-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.item-action-btn-img {
+    height: clamp(40px, 5vw, 55px);
+    width: auto;
+    display: block;
+}
+
+.item-action-btn-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(0.8rem, 1.2vw, 1rem);
+    font-weight: bold;
+    color: grey;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.item-action-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.item-card.item-equipped {
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.65);
+}
+
+.item-card.item-equipped .equip-character {
+    opacity: 0.85;
+    cursor: default;
+}
+
+.equip-character.equipped {
+    background: rgba(255, 215, 0, 0.25);
+    border-color: rgba(255, 215, 0, 0.8);
+    color: #ffd700;
+}
+
+/* For clarity when no items exist */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-family: "Sansation", sans-serif;
+    font-size: 1.2rem;
+    color: #ccc;
+    margin-top: 2rem;
+}
+
+/* Locked character styles */
+.item-locked {
+    position: relative;
+}
+
+.item-image-locked {
+    filter: grayscale(100%) brightness(0.3);
+    opacity: 0.5;
+}
+
+.item-equipped .item-image {
+    filter: none;
+    opacity: 1;
+}
+
+.item-equipped .locked-icon {
+    display: none;
+}
+
+.lock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 5;
+    pointer-events: none;
+    padding-top: 8%;
+}
+
+.lock-icon {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+/* Locked button centered in popup */
+.locked-button-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 6;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.locked-icon {
+    height: clamp(40px, 6vw, 60px) !important;
+    width: auto !important;
+    max-width: clamp(40px, 6vw, 60px) !important;
+    display: block;
+    opacity: 0.35;
+}
+
+/* Button  */
+.buy-button {
+    max-width: 25%;
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, filter 0.2s ease;
+    pointer-events: auto;
+    z-index: 11;
+}
+
+.buy-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.buy-button img {
+    height: clamp(40px, 5vw, 55px);
+    width: auto;
+    display: block;
+    pointer-events: none;
+}
+
+.buy-button span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(0.8rem, 1.2vw, 1rem);
+    font-weight: bold;
+    color: grey;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.buy-button:hover:not(:disabled) {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* ===== Character Popup Modal ===== */
+.character-popup-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.character-popup-modal.hidden {
+    display: none;
+}
+
+.character-popup-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: all;
+}
+
+.character-popup-content {
+    position: relative;
+    width: clamp(300px, 50vw, 500px);
+    max-width: 90vw;
+    z-index: 1001;
+    pointer-events: all;
+    animation: popup-entrance 0.3s ease;
+}
+
+.character-popup-bg-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+
+.character-popup-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(20px, 5vw, 40px);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.character-popup-title {
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: bold;
+    color: grey;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin-bottom: clamp(15px, 3vw, 25px);
+}
+
+.character-popup-message {
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    margin-bottom: clamp(20px, 4vw, 30px);
+    line-height: 1.4;
+}
+
+.character-popup-button {
+    background-image: url('../img/buttons/gold_button.webp');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: 'Sansation', sans-serif;
+    color: grey;
+    font-size: clamp(1rem, 1.5vw, 1.3rem);
+    font-weight: bold;
+    width: clamp(100px, 20vw, 150px);
+    height: clamp(35px, 5vw, 50px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.character-popup-button:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}
+
+@keyframes popup-entrance {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+
+

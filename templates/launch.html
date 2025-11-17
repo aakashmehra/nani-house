@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Nani House{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/launch.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="menu-container">
+        <div class="title">
+            <img src="{{ url_for('static', filename='img/background/nani_house.webp') }}" alt="Nani House" class="nani-house-logo">
+        </div>
+        <div class="settings">
+            <button id="settings-btn"><img src="{{ url_for('static', filename='img/buttons/settings_button.webp') }}" alt="settings" height="50"></button>
+        </div>
+        
+        <!-- Settings Popup -->
+        <div id="settings-popup" class="settings-popup-modal hidden">
+            <div class="settings-popup-overlay"></div>
+            <div class="settings-popup-content">
+                <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="settings-popup-bg-img">
+                <div class="settings-popup-inner">
+                    <div class="settings-popup-title">SETTINGS</div>
+                    <button class="settings-popup-close" id="settings-popup-close">
+                        <img src="{{ url_for('static', filename='img/buttons/close_button.webp') }}" alt="close" height="30">
+                    </button>
+                    <div class="settings-content">
+                        <!-- Settings content will go here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="coin-display">
+            <div class="coin_value">{{ coin_value }}</div>
+            <div class="coins"><img src="{{ url_for('static', filename='img/buttons/pippa_coin.webp') }}" alt="coins" height="50"></div>
+        </div>
+        <div class="menu-buttons">
+            <a href="{{ url_for('house_page') }}" class="menu-button play">PLAY</a>
+            <a href="{{ url_for('inventory') }}" class="menu-button inventory">INVENTORY</a>
+            <a href="{{ url_for('shop') }}" class="menu-button shop">SHOP</a>
+        </div>
+        <div class="profile-button">
+            <a href="{{ url_for('profile') }}"><img src="{{ url_for('static', filename='img/buttons/profile_button.webp') }}" alt="profile" height="50"></a>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsPopup = document.getElementById('settings-popup');
+        const settingsClose = document.getElementById('settings-popup-close');
+        const settingsOverlay = settingsPopup.querySelector('.settings-popup-overlay');
+        
+        settingsBtn.addEventListener('click', () => {
+            settingsPopup.classList.remove('hidden');
+        });
+        
+        settingsClose.addEventListener('click', () => {
+            settingsPopup.classList.add('hidden');
+        });
+        
+        settingsOverlay.addEventListener('click', () => {
+            settingsPopup.classList.add('hidden');
+        });
+    });
+    </script>
+{% endblock %}

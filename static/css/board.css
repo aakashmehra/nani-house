@@ -1,0 +1,55 @@
+/* board.css - 10x10 grid styles */
+.board-wrap {
+    position: relative;
+    width: min(1000px, 92vw);
+    margin: 2rem auto;
+    aspect-ratio: 1 / 1; /* keep square container */
+    max-width: 1000px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    border-radius: 8px;
+    background: #eee;
+    overflow: hidden;
+}
+
+/* the grid */
+.board {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    width: 100%;
+    height: 100%;
+    gap: 0; /* we'll use cell borders to draw grid lines */
+    box-sizing: border-box;
+    pointer-events: none; /* disabled until game starts; 'active' class flips this */
+}
+
+/* each cell */
+.cell {
+    box-sizing: border-box;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    user-select: none;
+}
+
+/* active board after game starts - allow pointer events */
+.board.active {
+    pointer-events: auto;
+}
+
+/* highlight a cell on hover (only when board active) */
+.board.active .cell:hover {
+    background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+    cursor: pointer;
+    transform: translateY(-2px);
+    transition: transform 120ms ease;
+}
+
+/* responsive adjustments */
+@media (max-width: 640px) {
+    .board-wrap { margin: 1rem; }
+    .cell { font-size: 0.7rem; }
+}

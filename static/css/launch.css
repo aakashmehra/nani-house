@@ -1,0 +1,308 @@
+/* Main page specific styles (formerly index.css) */
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+
+.body, html {
+    background-color: #101510;
+}
+
+.menu-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+.title {
+    position: absolute;
+    top: 13%;
+    font-family: "Sansation", sans-serif;
+    font-size: clamp(3.6rem, 9vw, 7rem);
+    width: 100%;
+    font-weight: bold;
+    text-align: center;
+    color: grey;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    line-height: 1.2;
+    z-index: 10;
+}
+
+.nani-house-logo {
+    max-width: clamp(200px, 30vw, 400px);
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.settings {
+    position: absolute;
+    top: 24px;
+    left: 5%;
+    z-index: 10;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.settings button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.settings button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Settings Popup */
+.settings-popup-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.settings-popup-modal.hidden {
+    display: none;
+}
+
+.settings-popup-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: all;
+}
+
+.settings-popup-content {
+    position: relative;
+    width: clamp(350px, 45vw, 500px);
+    max-width: 80vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 1001;
+    pointer-events: all;
+}
+
+.settings-popup-bg-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+
+.settings-popup-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: clamp(25px, 5vw, 45px);
+    box-sizing: border-box;
+    text-align: center;
+    gap: clamp(20px, 3vw, 30px);
+}
+
+.settings-popup-title {
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: bold;
+    color: grey;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin-bottom: clamp(10px, 2vw, 20px);
+}
+
+.settings-popup-close {
+    position: absolute;
+    top: clamp(15px, 2vw, 20px);
+    right: clamp(15px, 2vw, 20px);
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    z-index: 1002;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.settings-popup-close:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.settings-content {
+    width: 100%;
+    font-family: 'Sansation', sans-serif;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+}
+
+.coin-display {
+    position: absolute;
+    top: 24px;
+    right: 5%;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.coin_value {
+    font-family: "Sansation", sans-serif;
+    color: rgb(255, 255, 255);
+    font-size: clamp(1.6rem, 2.5vw, 1.5rem);
+    font-weight: bold;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.coins {
+    display: flex;
+    align-items: center;
+}
+
+.menu-buttons {
+    position: fixed;
+    bottom: 4%;
+    left: 0;
+    padding-left: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1vh;
+    z-index: 10;
+    width: auto;
+}
+
+.menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(16rem, 28vw, 22rem);
+    aspect-ratio: 3 / 1;
+    background-image: url('/static/img/buttons/button_primary.webp');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-family: "Sansation", sans-serif;
+    color: grey;
+    font-size: clamp(1.8rem, 2.5vw, 1.5rem);
+    font-weight: bold;
+    text-decoration: none;
+    transition: transform 0.15s ease, filter 0.2s ease;
+    position: relative;
+}
+
+.settings:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.menu-button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.menu-button.shop {
+    /* SHOP (red variant) */
+    color: #85231c;
+    filter: hue-rotate(0deg) saturate(1.2) brightness(0.9);
+}
+
+.profile-button {
+    position: fixed;
+    bottom: 4%;
+    right: 6%;
+    z-index: 10;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.profile-button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Auth Launch Page Styles */
+.launch-buttons {
+    position: fixed;
+    bottom: 4%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2vh;
+    z-index: 10;
+    width: 100%;
+}
+
+.launch-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(16rem, 28vw, 22rem);
+    aspect-ratio: 3 / 1;
+    background-image: url('/static/img/buttons/button_primary.webp');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-family: "Sansation", sans-serif;
+    color: grey;
+    font-size: clamp(1.6rem, 2.3vw, 1.8rem);
+    font-weight: bold;
+    text-decoration: none;
+    white-space: nowrap;
+    padding: 0 10px;
+    box-sizing: border-box;
+    transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.launch-button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.launch-button.signup-btn {
+    color: #85231c;
+    filter: hue-rotate(0deg) saturate(1.2) brightness(0.9);
+}
+
+.guest-play-link {
+    font-family: "Sansation", sans-serif;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: clamp(1.4rem, 2.2vw, 1.6rem);
+    font-weight: bold;
+    text-decoration: underline;
+    margin-top: 1vh;
+    transition: color 0.2s ease, transform 0.15s ease;
+    cursor: pointer;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.guest-play-link:hover {
+    color: rgb(255, 255, 255);
+    transform: scale(1.05);
+}
+
+/* Phone: Make logo 2x larger */
+@media (max-width: 768px) {
+    .nani-house-logo {
+        max-width: clamp(300px, 60vw, 800px);
+    }
+}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Nani House - Play{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/grid_page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/room_page.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="menu-container">
+        <div class="title">PLAY</div>
+        <div class="back-button">
+            <a href="{{ url_for('main') }}"><img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="100"></a>
+        </div>
+        <div class="room-buttons">
+            <a href="{{ url_for('create_house') }}" class="room-button create-room-btn">{% if user_house %}MY HOUSE{% else %}CREATE HOUSE{% endif %}</a>
+            <a href="{{ url_for('join_house') }}" class="room-button join-room-btn">JOIN HOUSE</a>
+        </div>
+    </div>
+{% endblock %}
+

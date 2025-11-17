@@ -1,0 +1,765 @@
+{% extends "base.html" %}
+{% block title %}Nani House - Profile{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/grid_page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="menu-container">
+        <div class="title">PROFILE</div>
+        <div class="back-button">
+            <a href="{{ url_for('main') }}"><img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="100"></a>
+        </div>
+        
+        <!-- Profile Info Section -->
+        <div class="profile-info-section">
+            <div class="profile-avatar">
+                <img src="{{ url_for('static', filename='img/characters/ditte.webp') }}" alt="avatar" class="profile-avatar-img">
+            </div>
+            <div class="profile-username">{{ user.username if user else 'User' }}</div>
+            <div class="profile-email">{{ user.email if user else 'user@example.com' }}</div>
+        </div>
+        
+        <!-- Profile Menu Options -->
+        <div class="profile-menu-section">
+            <button class="profile-action-btn" id="stats-btn">
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="stats" class="profile-action-img">
+                <span class="profile-action-text">STATS</span>
+            </button>
+            <button class="profile-action-btn" id="edit-profile-btn">
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="edit" class="profile-action-img">
+                <span class="profile-action-text">EDIT PROFILE</span>
+            </button>
+            <!-- Logout Button (mobile - below edit profile) -->
+            <div class="profile-logout-section profile-logout-mobile">
+                <a href="{{ url_for('auth.logout') }}" class="profile-action-btn logout-btn-link">
+                    <img src="{{ url_for('static', filename='img/buttons/cancel_button.webp') }}" alt="logout" class="profile-action-img">
+                    <span class="profile-action-text">LOGOUT</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Friends Button (bottom right) -->
+        <div class="profile-friends-section">
+            <button class="profile-friends-btn" id="friends-btn">
+                <img src="{{ url_for('static', filename='img/buttons/add_friend.webp') }}" alt="friends" class="profile-friends-img">
+                {% if pending_friend_requests > 0 %}
+                <span class="profile-friends-badge" id="friend-notification-badge">{{ pending_friend_requests }}</span>
+                {% else %}
+                <span class="profile-friends-badge hidden" id="friend-notification-badge">0</span>
+                {% endif %}
+            </button>
+        </div>
+        
+        <!-- Logout Button (PC - top right) -->
+        <div class="profile-logout-section profile-logout-desktop">
+            <a href="{{ url_for('auth.logout') }}" class="profile-action-btn logout-btn-link">
+                <img src="{{ url_for('static', filename='img/buttons/cancel_button.webp') }}" alt="logout" class="profile-action-img">
+                <span class="profile-action-text">LOGOUT</span>
+            </a>
+        </div>
+        
+        <!-- Stats Popup -->
+        <div id="stats-popup" class="profile-popup-modal hidden">
+            <div class="profile-popup-overlay"></div>
+            <div class="profile-popup-content friend-popup-content-small">
+                <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="profile-popup-bg-img">
+                <div class="profile-popup-inner stats-popup">
+                    <div class="profile-popup-title">STATS</div>
+                    <div class="stats-content">
+                        <div><strong>Wins:</strong> {{ wins }}</div>
+                        <div><strong>Losses:</strong> {{ losses }}</div>
+                        <div><strong>Total Games:</strong> {{ total_games }}</div>
+                        <div style="padding-top: 1.5vh; border-top: 1px solid rgba(255, 255, 255, 0.3);"><strong>Total Matches Played:</strong> {{ total_server_matches }}</div>
+                    </div>
+                    <button class="profile-popup-close" id="stats-popup-close">OK</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edit Profile Popup -->
+        <div id="edit-profile-popup" class="profile-popup-modal hidden">
+            <div class="profile-popup-overlay"></div>
+            <div class="profile-popup-content friend-popup-content-small">
+                <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="profile-popup-bg-img">
+                <div class="profile-popup-inner">
+                    <div class="profile-popup-title">EDIT PROFILE</div>
+                    <form method="POST" action="{{ url_for('profile') }}" class="profile-popup-form">
+                        <div class="profile-field">
+                            <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="field-bg">
+                            <input type="text" name="username" class="profile-input" placeholder="Username" value="{{ user.username if user else '' }}" required>
+                        </div>
+                        <div class="profile-field">
+                            <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="field-bg">
+                            <input type="email" class="profile-input" placeholder="Email" value="{{ user.email if user else '' }}" readonly disabled>
+                        </div>
+                        {% if error %}
+                        <div class="error-message">{{ error }}</div>
+                        {% endif %}
+                        <div class="profile-popup-form-buttons">
+                            <button type="button" class="profile-popup-close" id="edit-profile-popup-cancel">CANCEL</button>
+                            <button type="submit" class="profile-popup-save">SAVE</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Friends Main Popup Modal (shows Current Friends and Add Friends buttons) -->
+    <div id="friends-main-popup" class="friend-popup-modal hidden">
+        <div class="friend-popup-overlay"></div>
+        <div class="friend-popup-content friend-popup-content-small">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="friend-popup-bg-img">
+            <div class="friend-popup-inner">
+                <div class="friend-popup-title">Friends</div>
+                <div class="friends-main-buttons">
+                    <button class="friend-main-action-btn" id="current-friends-btn">
+                        <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="current friends" class="friend-main-action-img">
+                        <span class="friend-main-action-text">Current Friends</span>
+                    </button>
+                    <button class="friend-main-action-btn" id="add-friends-btn">
+                        <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="add friend" class="friend-main-action-img">
+                        <span class="friend-main-action-text">Add Friends</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Current Friends Popup Modal -->
+    <div id="current-friends-popup" class="friend-popup-modal hidden">
+        <div class="friend-popup-overlay"></div>
+        <div class="friend-popup-content friend-popup-content-small">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="friend-popup-bg-img">
+            <div class="friend-popup-inner">
+                <div class="friend-popup-title">Current Friends</div>
+                
+                <!-- Current Friends Section -->
+                <div class="friend-current-section" id="friend-current-section">
+                    <div class="friend-current-list" id="friend-current-list">
+                        <!-- Friends will be loaded here -->
+                    </div>
+                    <div class="friend-current-empty hidden" id="friend-current-empty">No friends yet</div>
+                </div>
+                
+                <!-- Pending Requests Section -->
+                <div class="friend-requests-section" id="friend-requests-section">
+                    <div class="friend-section-title">Pending Requests</div>
+                    <div class="friend-requests-list" id="friend-requests-list">
+                        <!-- Requests will be loaded here -->
+                    </div>
+                    <div class="friend-requests-empty hidden" id="friend-requests-empty">No pending requests</div>
+                </div>
+                
+                <div class="friend-popup-back-button-bottom">
+                    <button class="friend-popup-back-btn" id="current-friends-back">
+                        <img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="80">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Friends Popup Modal -->
+    <div id="add-friends-popup" class="friend-popup-modal hidden">
+        <div class="friend-popup-overlay"></div>
+        <div class="friend-popup-content friend-popup-content-small">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="friend-popup-bg-img">
+            <div class="friend-popup-inner">
+                <div class="friend-popup-title">Add Friend</div>
+                
+                <form class="friend-popup-form" id="friend-send-form">
+                    <div class="friend-field">
+                        <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="text field" class="friend-field-bg">
+                        <input type="text" class="friend-input" id="friend-username-input" placeholder="Enter username" required>
+                    </div>
+                    <div class="friend-error-message hidden" id="friend-error"></div>
+                    <div class="friend-popup-buttons">
+                        <button type="button" class="friend-popup-button friend-popup-cancel" id="add-friends-cancel">
+                            <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="cancel" class="friend-button-img">
+                            <span class="friend-button-text">Cancel</span>
+                        </button>
+                        <button type="submit" class="friend-popup-button friend-popup-confirm" id="friend-send">
+                            <img src="{{ url_for('static', filename='img/buttons/accept_button.webp') }}" alt="send" class="friend-button-img">
+                            <span class="friend-button-text">Send Request</span>
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="friend-popup-back-button-bottom">
+                    <button class="friend-popup-back-btn" id="add-friends-back">
+                        <img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="80">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transfer Coins Popup -->
+    <div id="transfer-popup" class="friend-popup-modal hidden">
+        <div class="friend-popup-overlay"></div>
+        <div class="friend-popup-content friend-popup-content-small">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="friend-popup-bg-img">
+            <div class="friend-popup-inner">
+                <div class="friend-popup-back-button-bottom">
+                    <button class="friend-popup-back-btn" id="transfer-back">
+                        <img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="80">
+                    </button>
+                </div>
+                <div class="friend-popup-title">TRANSFER COINS</div>
+                <div class="friend-popup-form">
+                    <div class="friend-field">
+                        <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="friend-field-bg">
+                        <input type="text" id="transfer-username" class="friend-input" placeholder="Recipient Username" required>
+                    </div>
+                    <div class="friend-field">
+                        <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="friend-field-bg">
+                        <input type="number" id="transfer-amount" class="friend-input" placeholder="Amount" min="1" required>
+                    </div>
+                    <div id="transfer-error" class="friend-error-message hidden"></div>
+                    <div class="friend-popup-buttons">
+                        <button type="button" class="friend-popup-button friend-popup-cancel" id="transfer-cancel">
+                            <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="cancel" class="friend-button-img">
+                            <span class="friend-button-text">Cancel</span>
+                        </button>
+                        <button type="button" class="friend-popup-button friend-popup-confirm" id="transfer-send">
+                            <img src="{{ url_for('static', filename='img/buttons/accept_button.webp') }}" alt="send" class="friend-button-img">
+                            <span class="friend-button-text">Send</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transfer Success/Error Popup -->
+    <div id="transfer-result-popup" class="transfer-popup-modal hidden">
+        <div class="transfer-popup-overlay"></div>
+        <div class="transfer-popup-content">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="transfer-popup-bg-img">
+            <div class="transfer-popup-inner">
+                <div class="transfer-popup-title" id="transfer-result-title"></div>
+                <div class="transfer-popup-message" id="transfer-result-message"></div>
+                <button class="transfer-popup-button" id="transfer-result-ok">OK</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Friend Stats Popup -->
+    <div id="friend-stats-popup" class="friend-popup-modal hidden">
+        <div class="friend-popup-overlay"></div>
+        <div class="friend-popup-content friend-popup-content-small">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="friend-popup-bg-img">
+            <div class="friend-popup-inner">
+                <div class="friend-popup-back-button-bottom">
+                    <button class="friend-popup-back-btn" id="friend-stats-back">
+                        <img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="80">
+                    </button>
+                </div>
+                <div class="friend-popup-title" id="friend-stats-title">Friend Stats</div>
+                <div class="friend-stats-content" id="friend-stats-content">
+                    <!-- Stats will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Stats popup
+        const statsBtn = document.getElementById('stats-btn');
+        const statsPopup = document.getElementById('stats-popup');
+        const statsPopupClose = document.getElementById('stats-popup-close');
+        
+        statsBtn.addEventListener('click', () => {
+            statsPopup.classList.remove('hidden');
+        });
+        
+        statsPopupClose.addEventListener('click', () => {
+            statsPopup.classList.add('hidden');
+        });
+        
+        statsPopup.querySelector('.profile-popup-overlay').addEventListener('click', () => {
+            statsPopup.classList.add('hidden');
+        });
+        
+        // Edit profile popup
+        const editProfileBtn = document.getElementById('edit-profile-btn');
+        const editProfilePopup = document.getElementById('edit-profile-popup');
+        const editProfilePopupCancel = document.getElementById('edit-profile-popup-cancel');
+        
+        editProfileBtn.addEventListener('click', () => {
+            editProfilePopup.classList.remove('hidden');
+        });
+        
+        editProfilePopupCancel.addEventListener('click', () => {
+            editProfilePopup.classList.add('hidden');
+        });
+        
+        editProfilePopup.querySelector('.profile-popup-overlay').addEventListener('click', () => {
+            editProfilePopup.classList.add('hidden');
+        });
+        
+        // Original script continues...
+        const transferPopup = document.getElementById('transfer-popup');
+        const transferResultPopup = document.getElementById('transfer-result-popup');
+        const transferCancelBtn = document.getElementById('transfer-cancel');
+        const transferSendBtn = document.getElementById('transfer-send');
+        const transferResultOkBtn = document.getElementById('transfer-result-ok');
+        const transferUsernameInput = document.getElementById('transfer-username');
+        const transferAmountInput = document.getElementById('transfer-amount');
+        const transferError = document.getElementById('transfer-error');
+        
+        function showTransferPopup() {
+            transferPopup.classList.remove('hidden');
+            // Only clear if not opened from friend transfer (will be set by friend transfer handler)
+            if (!transferUsernameInput.readOnly) {
+                transferUsernameInput.value = '';
+            }
+            transferAmountInput.value = '';
+            transferError.classList.add('hidden');
+        }
+        
+        // Reset username field when closing popup
+        function hideTransferPopup() {
+            transferPopup.classList.add('hidden');
+            // Reset username field state
+            transferUsernameInput.readOnly = false;
+            transferUsernameInput.style.cursor = 'text';
+            transferUsernameInput.style.opacity = '1';
+        }
+        
+        
+        function showTransferResult(title, message) {
+            document.getElementById('transfer-result-title').textContent = title;
+            document.getElementById('transfer-result-message').textContent = message;
+            transferResultPopup.classList.remove('hidden');
+        }
+        
+        function hideTransferResult() {
+            transferResultPopup.classList.add('hidden');
+        }
+        
+        // Transfer button removed - only available from friends list
+        transferCancelBtn.addEventListener('click', hideTransferPopup);
+        transferResultOkBtn.addEventListener('click', hideTransferResult);
+        
+        const transferBack = document.getElementById('transfer-back');
+        transferBack.addEventListener('click', hideTransferPopup);
+        
+        transferPopup.querySelector('.friend-popup-overlay').addEventListener('click', hideTransferPopup);
+        transferResultPopup.querySelector('.transfer-popup-overlay').addEventListener('click', hideTransferResult);
+        
+        transferSendBtn.addEventListener('click', async () => {
+            const username = transferUsernameInput.value.trim();
+            const amount = parseInt(transferAmountInput.value);
+            
+            transferError.classList.add('hidden');
+            
+            if (!username) {
+                transferError.textContent = 'Please enter a username';
+                transferError.classList.remove('hidden');
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                transferError.textContent = 'Please enter a valid amount';
+                transferError.classList.remove('hidden');
+                return;
+            }
+            
+            transferSendBtn.disabled = true;
+            transferSendBtn.textContent = 'SENDING...';
+            
+            const requestBody = { to_username: username, amount: amount };
+            console.log('DEBUG: Sending transfer request:', requestBody);
+            
+            try {
+                const res = await fetch('/transfer_coins', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                console.log('DEBUG: Response status:', res.status);
+                const data = await res.json();
+                console.log('DEBUG: Response data:', data);
+                
+                hideTransferPopup();
+                
+                if (data.success) {
+                    showTransferResult('Transfer Successful!', data.message || `Successfully transferred ${amount} coins to ${username}`);
+                } else {
+                    const errorMsg = data.detail || data.error || 'Transfer failed';
+                    showTransferResult('Transfer Failed', errorMsg);
+                }
+            } catch (err) {
+                hideTransferPopup();
+                showTransferResult('Network Error', 'Failed to connect to server. Please try again.');
+            } finally {
+                transferSendBtn.disabled = false;
+                transferSendBtn.textContent = 'SEND';
+            }
+        });
+        
+        // Friend Request Functionality
+        const friendsBtn = document.getElementById('friends-btn');
+        const friendsMainPopup = document.getElementById('friends-main-popup');
+        const friendsMainClose = document.getElementById('friends-main-close');
+        const currentFriendsBtn = document.getElementById('current-friends-btn');
+        const addFriendsBtn = document.getElementById('add-friends-btn');
+        const currentFriendsPopup = document.getElementById('current-friends-popup');
+        const addFriendsPopup = document.getElementById('add-friends-popup');
+        const currentFriendsClose = document.getElementById('current-friends-close');
+        const addFriendsCancel = document.getElementById('add-friends-cancel');
+        const friendSendForm = document.getElementById('friend-send-form');
+        const friendUsernameInput = document.getElementById('friend-username-input');
+        const friendError = document.getElementById('friend-error');
+        const friendRequestsList = document.getElementById('friend-requests-list');
+        const friendRequestsSection = document.getElementById('friend-requests-section');
+        const friendNotificationBadge = document.getElementById('friend-notification-badge');
+        const friendCurrentList = document.getElementById('friend-current-list');
+        const friendCurrentSection = document.getElementById('friend-current-section');
+        const friendCurrentEmpty = document.getElementById('friend-current-empty');
+        const friendRequestsEmpty = document.getElementById('friend-requests-empty');
+        
+        // Show friends main popup
+        function showFriendsMainPopup() {
+            friendsMainPopup.classList.remove('hidden');
+        }
+        
+        // Hide friends main popup
+        function hideFriendsMainPopup() {
+            friendsMainPopup.classList.add('hidden');
+        }
+        
+        // Show current friends popup
+        function showCurrentFriendsPopup() {
+            hideFriendsMainPopup();
+            currentFriendsPopup.classList.remove('hidden');
+            loadFriendRequests();
+            loadFriends();
+        }
+        
+        // Hide current friends popup
+        function hideCurrentFriendsPopup() {
+            currentFriendsPopup.classList.add('hidden');
+        }
+        
+        // Show add friends popup
+        function showAddFriendsPopup() {
+            hideFriendsMainPopup();
+            addFriendsPopup.classList.remove('hidden');
+            friendUsernameInput.value = '';
+            friendError.classList.add('hidden');
+        }
+        
+        // Hide add friends popup
+        function hideAddFriendsPopup() {
+            addFriendsPopup.classList.add('hidden');
+        }
+        
+        // Load current friends
+        async function loadFriends() {
+            try {
+                const res = await fetch('/get_friends');
+                const data = await res.json();
+                
+                if (data.success && data.friends) {
+                    if (data.friends.length > 0) {
+                        friendCurrentList.innerHTML = '';
+                        friendCurrentEmpty.classList.add('hidden');
+                        data.friends.forEach(friend => {
+                            const friendItem = document.createElement('div');
+                            friendItem.className = 'friend-item';
+                            friendItem.innerHTML = `
+                                <div class="friend-item-content">
+                                    <span class="friend-username">${friend.username}</span>
+                                    <div class="friend-item-buttons">
+                                        <button class="friend-view-stats" data-friend-id="${friend.id}" data-friend-username="${friend.username}">
+                                            <img src="{{ url_for('static', filename='img/buttons/gold_button.webp') }}" alt="stats" class="friend-button-img">
+                                            <span class="friend-button-text">Stats</span>
+                                        </button>
+                                        <button class="friend-transfer-coins" data-friend-username="${friend.username}">
+                                            <img src="{{ url_for('static', filename='img/buttons/pippa_transfer_button.webp') }}" alt="transfer" class="friend-transfer-button-img">
+                                        </button>
+                                        <button class="friend-remove" data-friend-id="${friend.id}" data-friend-username="${friend.username}">
+                                            <img src="{{ url_for('static', filename='img/buttons/cancel_button.webp') }}" alt="remove" class="friend-button-img">
+                                            <span class="friend-button-text">Remove</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                            friendCurrentList.appendChild(friendItem);
+                        });
+                        friendCurrentSection.classList.remove('hidden');
+                    } else {
+                        friendCurrentSection.classList.add('hidden');
+                        friendCurrentEmpty.classList.remove('hidden');
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading friends:', err);
+            }
+        }
+        
+        // Load pending friend requests
+        async function loadFriendRequests() {
+            try {
+                const res = await fetch('/get_friend_requests');
+                const data = await res.json();
+                
+                if (data.success && data.requests) {
+                    if (data.requests.length > 0) {
+                        friendRequestsList.innerHTML = '';
+                        friendRequestsEmpty.classList.add('hidden');
+                        data.requests.forEach(req => {
+                            const requestItem = document.createElement('div');
+                            requestItem.className = 'friend-request-item';
+                            requestItem.innerHTML = `
+                                <span class="friend-request-username">${req.from_username}</span>
+                                <div class="friend-request-buttons">
+                                    <button class="friend-request-accept" data-request-id="${req.id}">Accept</button>
+                                    <button class="friend-request-reject" data-request-id="${req.id}">Reject</button>
+                                </div>
+                            `;
+                            friendRequestsList.appendChild(requestItem);
+                        });
+                        friendRequestsSection.classList.remove('hidden');
+                    } else {
+                        friendRequestsSection.classList.add('hidden');
+                        friendRequestsEmpty.classList.remove('hidden');
+                    }
+                    
+                    // Update notification badge
+                    if (data.count > 0) {
+                        friendNotificationBadge.textContent = data.count;
+                        friendNotificationBadge.classList.remove('hidden');
+                    } else {
+                        friendNotificationBadge.classList.add('hidden');
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading friend requests:', err);
+            }
+        }
+        
+        // Handle accept/reject buttons
+        friendRequestsList.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('friend-request-accept') || 
+                e.target.classList.contains('friend-request-reject')) {
+                const requestId = e.target.dataset.requestId;
+                const action = e.target.classList.contains('friend-request-accept') ? 'accept' : 'reject';
+                
+                try {
+                    const res = await fetch('/respond_friend_request', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ request_id: requestId, action: action })
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        loadFriendRequests(); // Reload requests
+                        loadFriends(); // Reload friends list
+                    } else {
+                        alert(data.error || 'Failed to process request');
+                    }
+                } catch (err) {
+                    console.error('Error responding to friend request:', err);
+                    alert('Network error. Please try again.');
+                }
+            }
+        });
+        
+        // Send friend request
+        friendSendForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = friendUsernameInput.value.trim();
+            
+            if (!username) {
+                friendError.textContent = 'Please enter a username';
+                friendError.classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/send_friend_request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    friendUsernameInput.value = '';
+                    friendError.classList.add('hidden');
+                    alert('Friend request sent!');
+                    hideAddFriendsPopup();
+                    loadFriends(); // Reload friends list in case it changed
+                } else {
+                    let errorMsg = 'Failed to send request';
+                    if (data.error === 'user_not_found') {
+                        errorMsg = 'User not found';
+                    } else if (data.error === 'already_friends') {
+                        errorMsg = 'You are already friends with this user';
+                    } else if (data.error === 'cannot_add_self') {
+                        errorMsg = 'You cannot add yourself as a friend';
+                    } else if (data.error === 'request_already_exists') {
+                        errorMsg = 'A friend request already exists';
+                    } else if (data.detail) {
+                        errorMsg = data.detail;
+                    }
+                    friendError.textContent = errorMsg;
+                    friendError.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error('Error sending friend request:', err);
+                friendError.textContent = 'Network error. Please try again.';
+                friendError.classList.remove('hidden');
+            }
+        });
+        
+        // Handle friend item buttons
+        friendCurrentList.addEventListener('click', async (e) => {
+            const target = e.target;
+            
+            // Find the button element (could be clicked on button, image, or text)
+            let button = null;
+            if (target.classList.contains('friend-view-stats') || target.classList.contains('friend-transfer-coins') || target.classList.contains('friend-remove')) {
+                button = target;
+            } else if (target.closest('.friend-view-stats')) {
+                button = target.closest('.friend-view-stats');
+            } else if (target.closest('.friend-transfer-coins')) {
+                button = target.closest('.friend-transfer-coins');
+            } else if (target.closest('.friend-remove')) {
+                button = target.closest('.friend-remove');
+            }
+            
+            if (!button) return;
+            
+            // View Stats button
+            if (button.classList.contains('friend-view-stats')) {
+                const friendId = button.dataset.friendId;
+                const friendUsername = button.dataset.friendUsername;
+                await showFriendStats(friendId, friendUsername);
+            }
+            
+            // Transfer Coins button
+            if (button.classList.contains('friend-transfer-coins')) {
+                const friendUsername = button.dataset.friendUsername;
+                hideCurrentFriendsPopup();
+                showTransferPopup();
+                transferUsernameInput.value = friendUsername;
+                transferUsernameInput.readOnly = true;
+                transferUsernameInput.style.cursor = 'not-allowed';
+                transferUsernameInput.style.opacity = '0.7';
+            }
+            
+            // Remove Friend button
+            if (button.classList.contains('friend-remove')) {
+                const friendId = button.dataset.friendId;
+                const friendUsername = button.dataset.friendUsername;
+                if (confirm(`Are you sure you want to remove ${friendUsername} from your friends list?`)) {
+                    await removeFriend(friendId);
+                }
+            }
+        });
+        
+        // Show friend stats popup
+        async function showFriendStats(friendId, friendUsername) {
+            try {
+                const res = await fetch(`/get_friend_stats?friend_id=${friendId}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    document.getElementById('friend-stats-title').textContent = `${friendUsername}'s Stats`;
+                    document.getElementById('friend-stats-content').innerHTML = `
+                        <div class="friend-stat-item"><strong>Wins:</strong> ${data.wins || 0}</div>
+                        <div class="friend-stat-item"><strong>Losses:</strong> ${data.losses || 0}</div>
+                        <div class="friend-stat-item"><strong>Total Games:</strong> ${data.total_games || 0}</div>
+                    `;
+                    document.getElementById('friend-stats-popup').classList.remove('hidden');
+                } else {
+                    alert(data.error || 'Failed to load friend stats');
+                }
+            } catch (err) {
+                console.error('Error loading friend stats:', err);
+                alert('Network error. Please try again.');
+            }
+        }
+        
+        // Remove friend
+        async function removeFriend(friendId) {
+            try {
+                const res = await fetch('/remove_friend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ friend_id: friendId })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    loadFriends(); // Reload friends list
+                } else {
+                    alert(data.error || 'Failed to remove friend');
+                }
+            } catch (err) {
+                console.error('Error removing friend:', err);
+                alert('Network error. Please try again.');
+            }
+        }
+        
+        // Friend stats popup close
+        const friendStatsBack = document.getElementById('friend-stats-back');
+        const friendStatsPopup = document.getElementById('friend-stats-popup');
+        
+        friendStatsBack.addEventListener('click', () => {
+            friendStatsPopup.classList.add('hidden');
+        });
+        
+        friendStatsPopup.querySelector('.friend-popup-overlay').addEventListener('click', () => {
+            friendStatsPopup.classList.add('hidden');
+        });
+        
+        // Event listeners
+        friendsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showFriendsMainPopup();
+        });
+        
+        friendsMainPopup.querySelector('.friend-popup-overlay').addEventListener('click', hideFriendsMainPopup);
+        
+        currentFriendsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showCurrentFriendsPopup();
+        });
+        
+        addFriendsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showAddFriendsPopup();
+        });
+        
+        addFriendsCancel.addEventListener('click', hideAddFriendsPopup);
+        
+        // Back button handlers
+        const currentFriendsBack = document.getElementById('current-friends-back');
+        const addFriendsBack = document.getElementById('add-friends-back');
+        
+        currentFriendsBack.addEventListener('click', () => {
+            hideCurrentFriendsPopup();
+            showFriendsMainPopup();
+        });
+        
+        addFriendsBack.addEventListener('click', () => {
+            hideAddFriendsPopup();
+            showFriendsMainPopup();
+        });
+        
+        // Close on overlay click
+        currentFriendsPopup.querySelector('.friend-popup-overlay').addEventListener('click', hideCurrentFriendsPopup);
+        addFriendsPopup.querySelector('.friend-popup-overlay').addEventListener('click', hideAddFriendsPopup);
+    });
+    </script>
+{% endblock %}

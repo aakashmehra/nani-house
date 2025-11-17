@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Nani House - About{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/how_to_play.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="about-container">
+        <!-- Logo on top left -->
+        <div class="home-logo-top-left">
+            <img src="{{ url_for('static', filename='img/background/nani_house.webp') }}" alt="Nani House" class="home-logo-img">
+        </div>
+        
+        <!-- Navigation buttons on top right -->
+        <div class="home-nav-buttons">
+            <a href="{{ url_for('home') }}" class="home-nav-btn">
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Home" class="home-nav-btn-img">
+                <span class="home-nav-btn-text">Home</span>
+            </a>
+            <a href="{{ url_for('how_to_play') }}" class="home-nav-btn">
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="How to Play" class="home-nav-btn-img">
+                <span class="home-nav-btn-text">How to Play</span>
+            </a>
+            <a href="{{ url_for('about') }}" class="home-nav-btn active">
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="About" class="home-nav-btn-img">
+                <span class="home-nav-btn-text">About</span>
+            </a>
+        </div>
+        
+        <!-- About Content -->
+        <div class="about-content">
+            <div class="about-title">ABOUT NANI HOUSE</div>
+            
+            <!-- Inspiration Section -->
+            <div class="about-section">
+                <h2 class="about-section-title">Inspiration</h2>
+                <div class="about-section-content">
+                    <p class="about-text">
+                        Nani House was inspired by classic board games and modern strategy games, combining 
+                        the tactical depth of chess with the unpredictability of dice-based adventures. 
+                        The game draws inspiration from:
+                    </p>
+                    <ul class="about-list">
+                        <li>Traditional board games and their strategic gameplay mechanics</li>
+                        <li>Modern multiplayer battle games with character abilities and progression</li>
+                        <li>Roguelike elements that add unpredictability and replayability</li>
+                        <li>Social gaming experiences that bring friends together</li>
+                    </ul>
+                    <p class="about-text">
+                        Our goal was to create a game that's easy to learn but challenging to master, 
+                        where every match tells a unique story of strategy, luck, and epic battles.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Developers Section -->
+            <div class="about-section">
+                <h2 class="about-section-title">Developers</h2>
+                <div class="about-section-content">
+                    <p class="about-text">
+                        Nani House was developed with passion and dedication by a team committed to 
+                        creating engaging multiplayer experiences.
+                    </p>
+                    <div class="developers-grid">
+                        <div class="developer-card">
+                            <div class="developer-name">Development Team</div>
+                            <div class="developer-role">Game Design & Development</div>
+                            <div class="developer-bio">
+                                A passionate team of developers working to bring innovative board game 
+                                experiences to the digital world.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Game Information Section -->
+            <div class="about-section">
+                <h2 class="about-section-title">Game Information</h2>
+                <div class="about-section-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Version</div>
+                            <div class="info-value">1.0.0</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Release Date</div>
+                            <div class="info-value">2024</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Platform</div>
+                            <div class="info-value">Web Browser</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Players</div>
+                            <div class="info-value">2-6 Players</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Technology Section -->
+            <div class="about-section">
+                <h2 class="about-section-title">Technology</h2>
+                <div class="about-section-content">
+                    <p class="about-text">
+                        Nani House is built using modern web technologies to ensure a smooth and 
+                        responsive gaming experience across all devices.
+                    </p>
+                    <div class="tech-list">
+                        <span class="tech-tag">Flask</span>
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">HTML5</span>
+                        <span class="tech-tag">CSS3</span>
+                        <span class="tech-tag">JavaScript</span>
+                        <span class="tech-tag">WebSockets</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Credits Section -->
+            <div class="about-section">
+                <h2 class="about-section-title">Credits & Acknowledgments</h2>
+                <div class="about-section-content">
+                    <p class="about-text">
+                        Special thanks to all the players, testers, and community members who have 
+                        contributed to making Nani House what it is today. Your feedback and support 
+                        drive us to continuously improve the game.
+                    </p>
+                    <p class="about-text">
+                        We also extend our gratitude to the open-source community and all the 
+                        developers whose tools and libraries made this project possible.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Contact Section -->
+            <div class="about-section">
+                <h2 class="about-section-title">Contact & Support</h2>
+                <div class="about-section-content">
+                    <p class="about-text">
+                        Have questions, suggestions, or found a bug? We'd love to hear from you! 
+                        Your feedback helps us make Nani House better for everyone.
+                    </p>
+                    <p class="about-text">
+                        Join our community to stay updated on new features, updates, and events.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
