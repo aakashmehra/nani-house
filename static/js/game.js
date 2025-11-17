@@ -142,8 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let lastRoll = null; // server-provided roll until used
     let rollDisplayTimeout = null; // timeout for hiding roll display
-    let attackableSet = new Set(); // set of 'x,y' strings for attackable positions
-    let isAttackMode = false; // whether we're in attack mode
 
     if (rollBtn) {
         rollBtn.addEventListener('click', () => {
@@ -161,18 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
         itemsBtn.addEventListener('click', () => {
             // TODO: Implement items functionality
             console.log('Items button clicked');
-        });
-    }
-
-    // Attack button
-    if (attackBtn) {
-        attackBtn.addEventListener('click', () => {
-            if (!matchId || !playerId) {
-                showFlashMessage('Missing match or player ID. Cannot attack.');
-                return;
-            }
-            showFlashMessage('Choose a player to attack');
-            socket.emit('attack_request', { match_id: matchId, player_id: playerId });
         });
     }
 
@@ -219,34 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let percent = (d.current_health/d.max_health) * 100;
             healthFill.style.width = percent + "%";
         }
-    });
-
-    socket.on('attackable_players', (d) => {
-        if (!d.attackable_positions || d.attackable_positions.length === 0) {
-            showFlashMessage('No players to attack');
-            // Move to next turn
-            socket.emit('move_request', {
-                match_id: matchId,
-                player_id: playerId,
-                target: getPlayerPosition(playerId),
-                steps_allowed: 0
-            });
-            return;
-        }
-        
-        isAttackMode = true;
-        attackableSet.clear();
-        d.attackable_positions.forEach(pos => {
-            const key = `${pos[0]},${pos[1]}`;
-            attackableSet.add(key);
-        });
-        highlightAttackablePositions(d.attackable_positions);
-    });
-
-    socket.on('attack_result', (d) => {
-        isAttackMode = false;
-        clearAttackHighlights();
-        showFlashMessage(d.message || 'Attack completed');
     });
 
     socket.on('roll_result', (d) => {
@@ -311,39 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // flip Y because template rows start at top (r=0) while logic uses bottom-left (0,0)
         const logicalY = 9 - domRow;
         const logicalX = col;
-
-        // Handle attack mode
-        if (isAttackMode) {
-            const key = `${logicalX},${logicalY}`;
-            if (!attackableSet.has(key)) {
-                showFlashMessage('Cannot attack this position');
-                return;
-            }
-            
-            // Find player at this position
-            let targetPlayerId = null;
-            if (currentSnapshot && currentSnapshot.players) {
-                for (const pid in currentSnapshot.players) {
-                    const pos = currentSnapshot.players[pid].position;
-                    if (pos && pos[0] === logicalX && pos[1] === logicalY && pid !== playerId) {
-                        targetPlayerId = pid;
-                        break;
-                    }
-                }
-            }
-            
-            if (!targetPlayerId) {
-                showFlashMessage('No player at this position');
-                return;
-            }
-            
-            socket.emit('attack_target', {
-                match_id: matchId,
-                attacker_id: playerId,
-                target_id: targetPlayerId
-            });
-            return;
-        }
 
         // require a roll before moving
         if (lastRoll === null) {
@@ -514,32 +439,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function highlightAttackablePositions(list) {
-        clearAttackHighlights();
-        if (!Array.isArray(list)) return;
-        list.forEach(p => {
-            const x = p[0];
-            const y = p[1];
-            const domRow = 9 - y;
-            const selector = `.cell[data-row="${domRow}"][data-col="${x}"]`;
-            const cell = board.querySelector(selector);
-            if (!cell) return;
-            cell.classList.add('attackable');
-        });
-    }
-
-    function clearAttackHighlights() {
-        attackableSet.clear();
-        const cells = board.querySelectorAll('.cell');
-        cells.forEach(c => c.classList.remove('attackable'));
-    }
-
     // add highlight style
     const extraStyle = document.createElement('style');
-    extraStyle.textContent = `
-        .cell.highlight{outline:3px solid rgba(255,200,30,0.9);box-shadow:0 0 6px rgba(255,200,30,0.6) inset}
-        .cell.attackable{outline:3px solid rgba(255,0,0,0.9);box-shadow:0 0 6px rgba(255,0,0,0.6) inset}
-    `;
+    extraStyle.textContent = `.cell.highlight{outline:3px solid rgba(255,200,30,0.9);box-shadow:0 0 6px rgba(255,200,30,0.6) inset}`;
     document.head.appendChild(extraStyle);
 
 });
