@@ -1,7 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ===== Countdown logic (unchanged) =====
-    const overlay = document.getElementById('countdownOverlay');
-    const countEl = document.getElementById('countNumber');
     const board = document.getElementById('board');
     const authUserId = window.AUTH_USER_ID || "";    // injected by Flask template
     const matchId = window.HOUSE_ID || window.MATCH_ID || null; // whichever you use
@@ -42,22 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!matchId || !playerId) {
         console.warn("No matchId or playerId present on window. Make sure your template provides AUTH_USER_ID and HOUSE_ID/MATCH_ID.");
     }
-
-    let count = 3;
-    const timer = setInterval(() => {
-        count--;
-        if (count > 0) {
-            countEl.textContent = count;
-        } else if (count === 0) {
-            countEl.textContent = 'Game started!';
-            setTimeout(() => {
-                overlay.classList.add('fade-out');
-                board.removeAttribute('aria-hidden');
-                board.classList.add('active');
-                setTimeout(() => overlay.style.display = 'none', 500);
-            }, 700);
-        }
-    }, 1000);
 
     // ===== Settings Modal logic =====
     const modal = document.getElementById('settingsModal');
@@ -135,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const attackBtn = document.getElementById('attackBtn');
     const itemsBtn = document.getElementById('itemsBtn'); // renamed from inventoryBtn
     const abilityBtn = document.getElementById('abilityBtn');
-    const gameRemote = document.getElementById('gameRemote');
+    const gameActionButtons = document.getElementById('gameActionButtons');
     const rollPlayerName = document.getElementById('rollPlayerName');
     const rollPlayerValue = document.getElementById('rollPlayerValue');
     const healthFill = document.getElementById("health-fill")
@@ -162,7 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!matchId || !playerId) {
                 showFlashMessage('Missing match or player ID. Cannot roll.');
                 attackMode = false;
-                gameRemote.style.display = "block"
+                if (gameActionButtons) {
+                    gameActionButtons.classList.remove('hidden');
+                }
                 return;
             }
             showFlashMessage("Choose a player to Attack!")
@@ -199,9 +183,9 @@ document.addEventListener('DOMContentLoaded', () => {
             attackBtn.disabled = false;
             itemsBtn.disabled = false;
             abilityBtn.disabled = false;
-            // Show remote control when it's user's turn
-            if (gameRemote) {
-                gameRemote.classList.remove('hidden');
+            // Show action buttons when it's user's turn
+            if (gameActionButtons) {
+                gameActionButtons.classList.remove('hidden');
             }
             turnIndicator.textContent = "Your Turn";
         } else {
@@ -209,9 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
             attackBtn.disabled = true;
             itemsBtn.disabled = true;
             abilityBtn.disabled = true;
-            // Hide remote control when it's not user's turn
-            if (gameRemote) {
-                gameRemote.classList.add('hidden');
+            // Hide action buttons when it's not user's turn
+            if (gameActionButtons) {
+                gameActionButtons.classList.add('hidden');
             }
             turnIndicator.textContent = `${d.user}'s Turn`;
         }
@@ -220,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('health_update', (d) => {
         console.log(d)
         if(attackMode){
-            showFlashMessage(`${d.attacker} Attacked ${d.target}`)
+            showFlashMessage(`${d.attacker} attacked ${d.target}!`)
             attackMode = false;
         }
         if (d.user_id === playerId){
@@ -271,13 +255,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // It's our roll — hide remote immediately and allow moves
+        // It's our roll — hide action buttons immediately and allow moves
         board.style.pointerEvents = 'auto';
         lastRoll = Number(d.value);
         
-        // Hide entire remote immediately after roll
-        if (gameRemote) {
-            gameRemote.classList.add('hidden');
+        // Hide action buttons immediately after roll
+        if (gameActionButtons) {
+            gameActionButtons.classList.add('hidden');
         }
         
         if (rollBtn) rollBtn.disabled = true;
@@ -349,9 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
             clearTimeout(rollDisplayTimeout);
             rollDisplayTimeout = null;
         }
-        // Hide remote when move is made (if still visible)
-        if (gameRemote) {
-            gameRemote.classList.add('hidden');
+        // Hide action buttons when move is made (if still visible)
+        if (gameActionButtons) {
+            gameActionButtons.classList.add('hidden');
         }
     });
 
@@ -385,12 +369,48 @@ document.addEventListener('DOMContentLoaded', () => {
             const cell = board.querySelector(selector);
             if (!cell) continue;
 
-            const dot = document.createElement('div');
-            dot.className = 'player-dot';
-            // make sure playerId is compared as string
-            dot.textContent = (pid === String(playerId)) ? 'You' : (info.user || 'P');
+            // Create player container
+            const playerContainer = document.createElement('div');
+            playerContainer.className = 'player-container';
 
-            cell.appendChild(dot);
+            // Create username bubble (speech bubble with arrow pointing down)
+            const usernameBubble = document.createElement('div');
+            usernameBubble.className = 'username-bubble';
+            const usernameText = document.createElement('span');
+            usernameText.className = 'username-text';
+            usernameText.textContent = info.user || 'Player';
+            usernameBubble.appendChild(usernameText);
+            playerContainer.appendChild(usernameBubble);
+
+            // Create character image container
+            const characterContainer = document.createElement('div');
+            characterContainer.className = 'character-container';
+            
+            // Create character image
+            const characterImg = document.createElement('img');
+            characterImg.className = 'character-image';
+            // Construct image path from character name
+            // Character images are stored as: img/characters/{name_lowercase}.webp
+            const characterName = (info.name || 'default').toLowerCase();
+            // Handle special case for "Ishada" which might be capitalized differently
+            const imageName = characterName === 'ishada' ? 'Ishada' : characterName;
+            characterImg.src = `/static/img/characters/${imageName}.webp`;
+            characterImg.alt = info.name || 'Character';
+            characterImg.onerror = function() {
+                // Fallback if image doesn't exist - show first letter of character name
+                this.style.display = 'none';
+                const fallback = document.createElement('div');
+                fallback.className = 'character-fallback';
+                fallback.textContent = (info.name || 'C').charAt(0).toUpperCase();
+                if (!characterContainer.querySelector('.character-fallback')) {
+                    characterContainer.appendChild(fallback);
+                }
+            };
+            
+            characterContainer.appendChild(characterImg);
+            playerContainer.appendChild(characterContainer);
+
+            cell.appendChild(playerContainer);
             cell.classList.add('occupied');
 
         }
@@ -406,11 +426,84 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // minimal styling for player dot if not present in CSS
+    // Styling for player container, username bubble, and character image
     const style = document.createElement('style');
     style.textContent = `
-    .player-dot{display:inline-block;background:rgba(255,255,255,0.9);padding:2px 6px;border-radius:8px;font-size:10px;font-weight:600}
-    .cell.occupied{background:rgba(0,0,0,0.06)}
+    .player-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+    
+    .username-bubble {
+        position: absolute;
+        top: -25px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        z-index: 10;
+        font-family: 'Sansation', sans-serif;
+    }
+    
+    .username-bubble::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid rgba(255, 255, 255, 0.95);
+    }
+    
+    .username-text {
+        display: block;
+    }
+    
+    .character-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .character-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        max-width: 80%;
+        max-height: 80%;
+    }
+    
+    .character-fallback {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .cell.occupied {
+        background: rgba(0, 0, 0, 0.06);
+    }
     `;
     document.head.appendChild(style);
 

@@ -41,12 +41,6 @@
     </div>
     <!-- 10x10 Board -->
     <div class="board-wrap">
-        <div id="countdownOverlay" class="overlay">
-            <div class="overlay-inner">
-                <div class="overlay-label">Game Starting in...</div>
-                <div id="countNumber" class="overlay-number">3</div>
-            </div>
-        </div>
 
         <div id="board" class="board" aria-hidden="true">
             {% for r in range(10) %}
@@ -59,35 +53,27 @@
     <div class = "health-bar">
         <div id="health-fill"></div>
     </div>
-    <!-- Remote Control -->
-    <div id="gameRemote" class="game-remote hidden">
-        <img src="{{ url_for('static', filename='img/buttons/game_remote/REMOTE.webp') }}" alt="Remote" class="remote-bg">
-        <div class="remote-buttons">
-            <!-- UP - Roll -->
-            <button id="rollBtn" class="remote-btn remote-btn-up">
-                <img src="{{ url_for('static', filename='img/buttons/game_remote/UP.webp') }}" alt="Roll" class="remote-btn-img">
-                <span class="remote-btn-text">Roll</span>
-            </button>
-            <!-- DOWN - Ability -->
-            <button id="abilityBtn" class="remote-btn remote-btn-down">
-                <img src="{{ url_for('static', filename='img/buttons/game_remote/DOWN.webp') }}" alt="Ability" class="remote-btn-img">
-                <span class="remote-btn-text">Ability</span>
-            </button>
-            <!-- LEFT - Attack -->
-            <button id="attackBtn" class="remote-btn remote-btn-left">
-                <img src="{{ url_for('static', filename='img/buttons/game_remote/LEFT.webp') }}" alt="Attack" class="remote-btn-img">
-                <span class="remote-btn-text">Attack</span>
-            </button>
-            <!-- RIGHT - Items -->
-            <button id="itemsBtn" class="remote-btn remote-btn-right">
-                <img src="{{ url_for('static', filename='img/buttons/game_remote/RIGHT.webp') }}" alt="Items" class="remote-btn-img">
-                <span class="remote-btn-text">Items</span>
-            </button>
-        </div>
+    <!-- Game Action Buttons (Right Side) -->
+    <div id="gameActionButtons" class="game-action-buttons hidden">
+        <button id="rollBtn" class="game-action-btn">
+            <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Roll" class="game-action-btn-img">
+            <span class="game-action-btn-text">Roll</span>
+        </button>
+        <button id="attackBtn" class="game-action-btn">
+            <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Attack" class="game-action-btn-img">
+            <span class="game-action-btn-text">Attack</span>
+        </button>
+        <button id="itemsBtn" class="game-action-btn">
+            <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Items" class="game-action-btn-img">
+            <span class="game-action-btn-text">Items</span>
+        </button>
+        <button id="abilityBtn" class="game-action-btn">
+            <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Ability" class="game-action-btn-img">
+            <span class="game-action-btn-text">Ability</span>
+        </button>
     </div>
     <!-- Bottom Right Roll Display (for all players' rolls) -->
     <div class="roll-display-container">
-        <img src="{{ url_for('static', filename='img/buttons/game_remote/empty_box_circle.webp') }}" alt="Roll Display" class="roll-display-bg">
         <div class="roll-display-content">
             <div id="rollPlayerName" class="roll-display-name hidden"></div>
             <div id="rollPlayerValue" class="roll-display-value hidden"></div>

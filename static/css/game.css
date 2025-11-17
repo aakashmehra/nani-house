@@ -193,40 +193,25 @@
     white-space: nowrap;
 }
 
-/* Game Remote Control */
-.game-remote {
+/* Game Action Buttons (Right Side) */
+.game-action-buttons {
     position: fixed;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    right: 2%;
+    transform: translateY(-50%);
     z-index: 150;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5vh;
     transition: opacity 0.3s ease;
 }
 
-.game-remote.hidden {
+.game-action-buttons.hidden {
     display: none;
 }
 
-.remote-bg {
-    width: clamp(300px, 40vw, 500px);
-    height: auto;
-    display: block;
-}
-
-.remote-buttons {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
-    gap: 0;
-    pointer-events: none;
-}
-
-.remote-btn {
+.game-action-btn {
     position: relative;
     background: transparent;
     border: none;
@@ -235,59 +220,38 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: auto;
-    transition: opacity 0.2s ease;
+    transition: transform 0.15s ease, filter 0.2s ease;
 }
 
-.remote-btn:hover {
-    opacity: 0.6;
+.game-action-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    filter: brightness(1.1);
 }
 
-.remote-btn:active {
-    opacity: 0.8;
+.game-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.remote-btn-img {
-    width: 100%;
-    height: auto;
+.game-action-btn-img {
+    height: clamp(45px, 6vw, 60px);
+    width: auto;
     display: block;
-    transition: opacity 0.2s ease;
+    pointer-events: none;
 }
 
-.remote-btn-text {
+.game-action-btn-text {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-family: 'Sansation', sans-serif;
-    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-size: clamp(0.9rem, 1.5vw, 1.2rem);
     font-weight: bold;
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    color: grey;
     pointer-events: none;
     white-space: nowrap;
     z-index: 10;
-}
-
-/* Position buttons in grid */
-.remote-btn-up {
-    grid-column: 2;
-    grid-row: 1;
-}
-
-.remote-btn-down {
-    grid-column: 2;
-    grid-row: 3;
-}
-
-.remote-btn-left {
-    grid-column: 1;
-    grid-row: 2;
-}
-
-.remote-btn-right {
-    grid-column: 3;
-    grid-row: 2;
 }
 
 /* Bottom Right Roll Display (for all players' rolls) */
@@ -302,30 +266,21 @@
     justify-content: center;
 }
 
-.roll-display-bg {
-    width: clamp(90px, 11.25vw, 135px);
-    height: auto;
-    display: block;
-}
-
 .roll-display-content {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    padding: 15px 20px;
+    min-width: 100px;
 }
 
 .roll-display-name {
-    position: absolute;
-    top: -30%;
     font-family: 'Sansation', sans-serif;
-    font-size: clamp(1.35rem, 2.25vw, 1.8rem);
+    font-size: clamp(1rem, 1.5vw, 1.3rem);
     font-weight: bold;
     color: white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
@@ -341,7 +296,7 @@
 
 .roll-display-value {
     font-family: 'Sansation', sans-serif;
-    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
     font-weight: bold;
     color: white;
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
