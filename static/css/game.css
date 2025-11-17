@@ -1,6 +1,8 @@
 /* game.css - overlay & countdown visuals */
 @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
-
+.body, html{
+    overflow: hidden;
+}
 .overlay {
     position: absolute;
     inset: 0;
@@ -72,7 +74,7 @@
     position: absolute;
     top: 20px;
     left: 20px;
-    z-index: 40;
+    z-index: 200;
     cursor: pointer;
 }
 .settings-btn img:hover {
@@ -319,7 +321,7 @@
     font-weight: bold;
     color: white;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
-    z-index: 20;
+    z-index: 200;
 }
 
 /* Flash Message Popup */
@@ -371,7 +373,7 @@
     border: 2px solid #333;
     border-radius: 8px;
     overflow: hidden;
-    z-index: 20;
+    z-index: 200;
 }
 
 #health-fill {

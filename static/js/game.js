@@ -40,6 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!matchId || !playerId) {
         console.warn("No matchId or playerId present on window. Make sure your template provides AUTH_USER_ID and HOUSE_ID/MATCH_ID.");
     }
+    
+    // Activate board immediately (countdown removed)
+    if (board) {
+        board.removeAttribute('aria-hidden');
+        board.classList.add('active');
+    }
 
     // ===== Settings Modal logic =====
     const modal = document.getElementById('settingsModal');
@@ -125,6 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastRoll = null; // server-provided roll until used
     let rollDisplayTimeout = null; // timeout for hiding roll display
     let attackMode = false;
+    let isZoomedOut = false; // track zoom state
+    const boardWrap = document.querySelector('.board-wrap');
 
     if (rollBtn) {
         rollBtn.addEventListener('click', () => {
@@ -133,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showFlashMessage('Missing match or player ID. Cannot roll.');
                 return;
             }
+            // Zoom out will be handled by roll_result socket event
             socket.emit('roll_request', { match_id: matchId, player_id: playerId });
         });
     }
@@ -141,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
         attackBtn.addEventListener('click', () => {
             attackBtn.disabled = true;
             attackMode = true;
+            board.style.pointerEvents = 'pointer';
             if (!matchId || !playerId) {
                 showFlashMessage('Missing match or player ID. Cannot roll.');
                 attackMode = false;
@@ -149,6 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return;
             }
+            // Zoom out when clicking attack to see the board
+            zoomOut();
             showFlashMessage("Choose a player to Attack!")
             socket.emit('attackable_players', { match_id: matchId, player_id: playerId })
         });
@@ -178,6 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
             rollDisplayTimeout = null;
         }
         
+        // Zoom in on the player whose turn it is
+        const turnPlayerId = d.turn;
+        zoomInOnPlayer(turnPlayerId);
+        
         if(d.turn === playerId){
             rollBtn.disabled = false;
             attackBtn.disabled = false;
@@ -203,11 +219,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('health_update', (d) => {
         console.log(d)
+        // Zoom out whenever ANY player attacks (health update indicates an attack happened)
+        if (d.attacker && d.target) {
+            zoomOut();
+        }
+        
         if(attackMode){
             showFlashMessage(`${d.attacker} attacked ${d.target}!`)
             attackMode = false;
         }
         if (d.user_id === playerId){
+            if (d.current_health <= 0){
+                d.current_health = 0;
+            }
             let percent = (d.current_health/d.max_health) * 100;
             healthFill.style.width = percent + "%";
         }
@@ -227,6 +251,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!d) return;
         // Determine who rolled (support multiple possible property names)
         const rollerId = d.player_id || d.playerId || d.player || d.user_id;
+
+        // Zoom out whenever ANY player rolls
+        zoomOut();
 
         // Clear any existing timeout
         if (rollDisplayTimeout) {
@@ -298,7 +325,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 match_id: matchId,
                 player_id: playerId,
                 target: [logicalX, logicalY],
-            })
+            });
+            // Zoom will be handled by turn_update when next turn starts
         }
         // require a roll before moving
         if (lastRoll === null) {
@@ -317,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showFlashMessage('Move out of bounds');
             return;
         }
-        console.log("move sent")
+
         socket.emit('move_request', {
             match_id: matchId,
             player_id: playerId,
@@ -337,8 +365,68 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameActionButtons) {
             gameActionButtons.classList.add('hidden');
         }
+        
+        // Zoom will be handled by turn_update when next turn starts
     });
 
+
+    // --------------------------
+    // Camera/Zoom functions
+    // --------------------------
+    function zoomInOnPlayer(playerIdToZoom) {
+        if (!boardWrap || !currentSnapshot || !board) return;
+        
+        const playerPos = getPlayerPosition(playerIdToZoom);
+        if (!playerPos) {
+            // If position not found, just reset zoom
+            resetZoom();
+            return;
+        }
+        
+        isZoomedOut = false;
+        
+        // Convert logical position to DOM cell position
+        const x = playerPos[0];
+        const y = playerPos[1];
+        const domRow = 9 - y;
+        
+        // Get the cell element
+        const cell = board.querySelector(`.cell[data-row="${domRow}"][data-col="${x}"]`);
+        if (!cell) {
+            resetZoom();
+            return;
+        }
+
+        // Calculate cell position as percentage of board (0-1)
+        // Board is 10x10, so each cell is 10% of board
+        const cellXPercent = (x + 0.5) / 10; // center of cell
+        const cellYPercent = (domRow + 0.5) / 10; // center of cell
+
+
+        // Scale up 3x
+        const scale = 3;
+        
+        // Calculate translation to center the cell
+        // We need to move the cell to the center (50%) of the viewport
+        // After scaling, the board is 3x larger, so we need to account for that
+        const translateXPercent = (0.5 - cellXPercent) * 100;
+        const translateYPercent = (0.5 - cellYPercent) * 100;
+
+        boardWrap.style.transform = `scale(${scale}) translate(${translateXPercent}%, ${translateYPercent}%)`;
+    }
+    
+    function zoomOut() {
+        if (!boardWrap) return;
+        isZoomedOut = true;
+        // Reset zoom to show full board
+        boardWrap.style.transform = 'scale(1) translate(0, 0)';
+    }
+    
+    function resetZoom() {
+        if (!boardWrap) return;
+        isZoomedOut = false;
+        boardWrap.style.transform = 'scale(1) translate(0, 0)';
+    }
 
     // --------------------------
     // Render helpers
