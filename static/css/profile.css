@@ -154,7 +154,7 @@
 /* Profile Friends Section (bottom right) */
 .profile-friends-section {
     position: fixed;
-    bottom: 4%;
+        bottom: 4%;
     right: 6%;
     z-index: 101;
     transition: transform 0.15s ease, filter 0.2s ease;
@@ -327,7 +327,7 @@
     flex-direction: column;
     align-items: center;
     gap: clamp(15px, 3vw, 25px);
-}
+    }
 
 .profile-popup-form-buttons {
     display: flex;

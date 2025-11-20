@@ -84,4 +84,17 @@ def modify_json(path, el_to_modify, new_val):
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
 
-    
+def create_board(path):
+    board_cells =  []
+
+    for i in range(10):
+        row = []
+        for j in range(10):
+            cell = random.randint(0, 3)
+            row.append(cell)
+        board_cells.append(row)
+        
+    print(board_cells)
+    modify_json(path, ["board_layout"], board_cells)
+
+    return board_cells

@@ -349,7 +349,7 @@
 
     // Use event delegation for dynamically created buttons
     function attachBuyButtonListeners() {
-        document.querySelectorAll('.shop-button').forEach(btn => {
+    document.querySelectorAll('.shop-button').forEach(btn => {
             // Remove existing listeners by cloning
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
@@ -358,13 +358,13 @@
                 const itemId = newBtn.dataset.itemId;
                 if (!itemId || newBtn.disabled) return;
                 const cost = newBtn.dataset.cost;
-                
-                // Show confirm modal instead of browser confirm
-                showConfirm(cost, () => {
+        
+        // Show confirm modal instead of browser confirm
+        showConfirm(cost, () => {
                     buy(parseInt(itemId, 10), newBtn);
-                });
-            });
         });
+        });
+    });
     }
     
     // Attach listeners to initial buttons

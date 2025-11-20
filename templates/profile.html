@@ -66,10 +66,10 @@
                 <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="popup" class="profile-popup-bg-img">
                 <div class="profile-popup-inner stats-popup">
                     <div class="profile-popup-title">STATS</div>
-                    <div class="stats-content">
-                        <div><strong>Wins:</strong> {{ wins }}</div>
-                        <div><strong>Losses:</strong> {{ losses }}</div>
-                        <div><strong>Total Games:</strong> {{ total_games }}</div>
+                <div class="stats-content">
+                    <div><strong>Wins:</strong> {{ wins }}</div>
+                    <div><strong>Losses:</strong> {{ losses }}</div>
+                    <div><strong>Total Games:</strong> {{ total_games }}</div>
                         <div style="padding-top: 1.5vh; border-top: 1px solid rgba(255, 255, 255, 0.3);"><strong>Total Matches Played:</strong> {{ total_server_matches }}</div>
                     </div>
                     <button class="profile-popup-close" id="stats-popup-close">OK</button>
@@ -85,22 +85,22 @@
                 <div class="profile-popup-inner">
                     <div class="profile-popup-title">EDIT PROFILE</div>
                     <form method="POST" action="{{ url_for('profile') }}" class="profile-popup-form">
-                        <div class="profile-field">
-                            <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="field-bg">
-                            <input type="text" name="username" class="profile-input" placeholder="Username" value="{{ user.username if user else '' }}" required>
-                        </div>
-                        <div class="profile-field">
-                            <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="field-bg">
-                            <input type="email" class="profile-input" placeholder="Email" value="{{ user.email if user else '' }}" readonly disabled>
-                        </div>
-                        {% if error %}
-                        <div class="error-message">{{ error }}</div>
-                        {% endif %}
+                <div class="profile-field">
+                    <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="field-bg">
+                    <input type="text" name="username" class="profile-input" placeholder="Username" value="{{ user.username if user else '' }}" required>
+                </div>
+                <div class="profile-field">
+                    <img src="{{ url_for('static', filename='img/buttons/text_field.webp') }}" alt="field" class="field-bg">
+                    <input type="email" class="profile-input" placeholder="Email" value="{{ user.email if user else '' }}" readonly disabled>
+                </div>
+                {% if error %}
+                <div class="error-message">{{ error }}</div>
+                {% endif %}
                         <div class="profile-popup-form-buttons">
                             <button type="button" class="profile-popup-close" id="edit-profile-popup-cancel">CANCEL</button>
                             <button type="submit" class="profile-popup-save">SAVE</button>
                         </div>
-                    </form>
+            </form>
                 </div>
             </div>
         </div>
@@ -190,7 +190,7 @@
                 <div class="friend-popup-back-button-bottom">
                     <button class="friend-popup-back-btn" id="add-friends-back">
                         <img src="{{ url_for('static', filename='img/buttons/backbutton.webp') }}" alt="back" height="80">
-                    </button>
+            </button>
                 </div>
             </div>
         </div>
@@ -315,7 +315,7 @@
             transferPopup.classList.remove('hidden');
             // Only clear if not opened from friend transfer (will be set by friend transfer handler)
             if (!transferUsernameInput.readOnly) {
-                transferUsernameInput.value = '';
+            transferUsernameInput.value = '';
             }
             transferAmountInput.value = '';
             transferError.classList.add('hidden');

@@ -6,6 +6,16 @@
 {% endblock %}
 {% block content %}
 <div class="game-container">
+    <!-- Spawn Location: House cells for players waiting to enter the board -->
+    <div id="spawn-location" class="spawn-location">
+        {% if currentSnapshot and currentSnapshot.players %}
+            {% for pid, pinfo in currentSnapshot.players.items() %}
+                <div class="house-cell" id="house-cell-{{ pid }}" style="width: 60px; height: 60px; background: #f5f5f5; border: 2px solid #888; border-radius: 8px;">
+                    <!-- Player content will be managed by JavaScript -->
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
     <!-- Settings Button (top-left) -->
     <div class="settings-btn">

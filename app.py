@@ -5,6 +5,7 @@ from models import (
     Character, Dice, Chest, FriendRequest, Game
 )
 from auth import auth_bp
+from minigames import minigame_bp
 from dotenv import load_dotenv
 from datetime import datetime
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -39,6 +40,7 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-change-in-pr
 init_db(app)
 
 app.register_blueprint(auth_bp)
+app.register_blueprint(minigame_bp)
 
 socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
 
@@ -96,7 +98,7 @@ def handle_join_game(data):
     path = match_path(match_id)
 
     try:
-        pos = gm.spawn_player(player_id_str, char)
+        pos = gm.spawn_player(player_id_str, char, (-1,-1))
     except:
         data = json_manager.read_json(path)
         turn_order = data["turn_order"]
@@ -110,6 +112,7 @@ def handle_join_game(data):
     print(f"Player {player_id_str} joined match {match_id} at position {pos}")
     # persist snapshot to file
     turn_order = json_manager.gen_turn_order(path)
+    board_layout = json_manager.create_board(path)
     json_manager.add_pos(path, raw_player_id, pos)
     
     # join socket room for match
@@ -297,8 +300,27 @@ def handle_attack_request(data):
     json_manager.modify_json(path, ["current_turn_index"], next_turn_ind)
     socketio.emit('turn_update', {"turn":turn_order[next_turn_ind], "user": data["players"][turn_order[next_turn_ind]]["user"]}, room=room)
 
-    
 
+@socketio.on('skip_turn')
+def handle_skip_turn(data):
+    """Skip turn when a player in spawn doesn't roll 1 or 6."""
+    match_id = data.get("match_id")
+    player_id = data.get("player_id")
+    path = match_path(match_id)
+    
+    data = json_manager.read_json(path)
+    room = f"match_{match_id}"
+    total_players = data["player_count"]
+    next_turn_ind = data["current_turn_index"] + 1
+    turn_order = data["turn_order"]
+
+    if next_turn_ind > (total_players - 1):
+        next_turn_ind = 0
+
+    json_manager.modify_json(path, ["current_turn_index"], next_turn_ind)
+    socketio.emit('turn_update', {"turn": turn_order[next_turn_ind], "user": data["players"][turn_order[next_turn_ind]]["user"]}, room=room)
+
+    
 
 # Socket events
 @socketio.on('connect')
@@ -1308,7 +1330,13 @@ def respond_friend_request():
 @app.route('/game')
 def game():
     match_id = request.args.get('match_id')
-    return render_template('game.html', MATCH_ID=match_id, AUTH_USER_ID=session.get('user_id'))
+    # Load match snapshot to pass players to template
+    try:
+        path = match_path(match_id)
+        currentSnapshot = json_manager.read_json(path)
+    except:
+        currentSnapshot = None
+    return render_template('game.html', MATCH_ID=match_id, AUTH_USER_ID=session.get('user_id'), currentSnapshot=currentSnapshot)
 
 @app.route('/shop')
 def shop():

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Drawing Game - Nani House{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/minigames.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/drawing_game.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="drawing-game-container">
+    <div class="task-display" id="taskDisplay"></div>
+    
+    <div class="timer-display" id="timerDisplay">20</div>
+    
+    <div class="drawing-wrapper">
+        <img src="{{ url_for('static', filename='img/minigame_images/drawing_board.webp') }}" alt="Drawing Board" class="drawing-board-bg">
+        
+        <canvas id="drawingCanvas" class="drawing-canvas"></canvas>
+        
+        <div class="drawing-controls">
+            <button id="clearBtn" class="control-btn">
+                <img src="{{ url_for('static', filename='img/buttons/cancel_button.webp') }}" alt="Clear" class="control-btn-img">
+                <span class="control-btn-text">Clear</span>
+            </button>
+            <button id="sendBtn" class="send-button" disabled>
+                <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Send" class="send-button-img">
+                <span class="send-button-text">Send</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Popup Modal (used for both checking and results) -->
+    <div class="popup-modal hidden" id="popupModal">
+        <div class="popup-modal-content">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="Popup" class="popup-modal-bg">
+            <div class="popup-modal-inner">
+                <!-- Checking state -->
+                <div class="popup-checking hidden" id="popupChecking">
+                    <div class="popup-title">Being checked by Nani...</div>
+                </div>
+                
+                <!-- Results state -->
+                <div class="popup-results hidden" id="popupResults">
+                    <div class="popup-title">Your Score</div>
+                    <div class="score-display" id="scoreDisplay"></div>
+                    <div class="task-result" id="taskResult"></div>
+                    <button id="playAgainBtn" class="play-again-button">
+                        <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Play Again" class="play-again-button-img">
+                        <span class="play-again-button-text">Play Again</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/drawing_game.js') }}"></script>
+{% endblock %}
+

@@ -282,6 +282,31 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Check if player is in spawn area and roll is 1 or 6
+        const playerPos = getPlayerPosition(playerId);
+        if (playerPos && playerPos[0] === -1 && playerPos[1] === -1) {
+            // Player is in spawn
+            if (d.value === 1 || d.value === 6) {
+                // Move to [0, 0]
+                socket.emit('move_request', {
+                    match_id: matchId,
+                    player_id: playerId,
+                    target: [0, 0],
+                    steps_allowed: d.value
+                });
+                return;
+            } else {
+                // Can't move yet, show message and pass turn to next player
+                showFlashMessage('Roll a 1 or 6 to enter the board!');
+                // Emit turn_update to move to next player
+                socket.emit('skip_turn', {
+                    match_id: matchId,
+                    player_id: playerId
+                });
+                return;
+            }
+        }
+
         // It's our roll — hide action buttons immediately and allow moves
         board.style.pointerEvents = 'auto';
         lastRoll = Number(d.value);
@@ -294,7 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rollBtn) rollBtn.disabled = true;
 
         try {
-            const playerPos = getPlayerPosition(playerId);
             if (playerPos && lastRoll > 0) {
                 const reachable = computeReachablePositions(playerPos, lastRoll);
                 highlightPositions(reachable);
@@ -435,23 +459,110 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!snapshot) return;
 
         // clear previous marks
+        const spawnLocation = document.getElementById('spawn-location');
+        const houseCells = spawnLocation ? spawnLocation.querySelectorAll('.house-cell') : [];
         const cells = board.querySelectorAll('.cell');
+        
+        // Clear all house cells
+        houseCells.forEach(cell => {
+            cell.innerHTML = '';
+        });
+        
+        // List of board images
+        const boardImages = [
+            '/static/img/board/blue.png',
+            '/static/img/board/green.png',
+            '/static/img/board/off-white.png',
+            '/static/img/board/red.png'
+        ];
+
+        // If board_layout is present and valid, use it. Otherwise, randomize and build it.
+        let boardLayout = snapshot.board_layout;
+        let layoutWasMissing = false;
+        if (!Array.isArray(boardLayout) || boardLayout.length !== 10 || !Array.isArray(boardLayout[0]) || boardLayout[0].length !== 10) {
+            // Generate a new random layout (10x10 array of 0-3)
+            console.log("yoo")
+            boardLayout = [];
+            for (let y = 0; y < 10; y++) {
+                const row = [];
+                for (let x = 0; x < 10; x++) {
+                    row.push(Math.floor(Math.random() * boardImages.length));
+                }
+                boardLayout.push(row);
+            }
+            layoutWasMissing = true;
+        }
+
+        // Render board cells using boardLayout
         cells.forEach(c => {
             c.innerHTML = '';
             c.classList.remove('occupied');
+            const domRow = Number(c.dataset.row);
+            const col = Number(c.dataset.col);
+            // Convert domRow to logical y (since domRow 0 is top, logical y 9)
+            const y = 9 - domRow;
+            const x = col;
+            const imgIdx = (boardLayout[y] && typeof boardLayout[y][x] === 'number') ? boardLayout[y][x] : 0;
+            const img = boardImages[imgIdx] || boardImages[0];
+            c.style.backgroundImage = `url('${img}')`;
+            c.style.backgroundSize = 'cover';
+            c.style.backgroundPosition = 'center';
         });
 
         const players = snapshot.players || {};
         for (const pid in players) {
             const info = players[pid];
-
             const pos = info.position;
             if (!pos) continue;
 
             const x = pos[0];
             const y = pos[1];
 
-            // convert logical y -> DOM row index (same as your original)
+            // If player is in spawn area (position [-1, -1]), render in house cells
+            if (x === -1 && y === -1) {
+                const houseCell = document.getElementById(`house-cell-${pid}`);
+                if (houseCell) {
+                    // Create player container for spawn
+                    const playerContainer = document.createElement('div');
+                    playerContainer.className = 'player-container';
+                    playerContainer.style.width = '100%';
+                    playerContainer.style.height = '100%';
+                    playerContainer.style.flexDirection = 'column';
+                    
+                    // Create character image
+                    const characterImg = document.createElement('img');
+                    characterImg.className = 'character-image';
+                    const characterName = (info.name || 'default').toLowerCase();
+                    const imageName = characterName === 'ishada' ? 'Ishada' : characterName;
+                    characterImg.src = `/static/img/characters/${imageName}.webp`;
+                    characterImg.alt = info.name || 'Character';
+                    characterImg.style.maxWidth = '80%';
+                    characterImg.style.maxHeight = '60%';
+                    characterImg.style.objectFit = 'contain';
+                    characterImg.onerror = function() {
+                        this.style.display = 'none';
+                        const fallback = document.createElement('div');
+                        fallback.style.fontSize = '20px';
+                        fallback.style.fontWeight = 'bold';
+                        fallback.textContent = (info.name || 'C').charAt(0).toUpperCase();
+                        playerContainer.appendChild(fallback);
+                    };
+                    playerContainer.appendChild(characterImg);
+                    
+                    // Create username label
+                    const usernameLabel = document.createElement('div');
+                    usernameLabel.style.fontSize = '10px';
+                    usernameLabel.style.fontWeight = 'bold';
+                    usernameLabel.style.marginTop = '4px';
+                    usernameLabel.textContent = info.user || 'Player';
+                    playerContainer.appendChild(usernameLabel);
+                    
+                    houseCell.appendChild(playerContainer);
+                }
+                continue;
+            }
+
+            // Otherwise render on the board
             const domRow = 9 - y;
             const selector = `.cell[data-row="${domRow}"][data-col="${x}"]`;
             const cell = board.querySelector(selector);

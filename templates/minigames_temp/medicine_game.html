@@ -1,0 +1,613 @@
+{% extends "base.html" %}
+
+{% block title %}Medicine Game - Nani House{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/minigames.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="medicine-game-container">
+    <div class="game-title">Choose 3 medicines</div>
+    
+    <div class="med-box-wrapper">
+        <img src="{{ url_for('static', filename='img/minigame_images/med_box_popup.webp') }}" alt="Medicine Box" class="med-box-bg">
+        
+        <div class="pills-container" id="pillsContainer">
+            <!-- Pills will be dynamically generated here -->
+        </div>
+        
+        <div class="game-info">
+            <div class="selected-count" id="selectedCount">Selected: 0/3</div>
+        </div>
+    </div>
+    
+    <!-- Results Modal -->
+    <div class="results-modal hidden" id="resultsModal">
+        <div class="results-content">
+            <h2>Final Results</h2>
+            <div class="results-list" id="resultsList"></div>
+            <div class="total-hp" id="totalHp"></div>
+            <button class="close-results-btn" id="closeResultsBtn">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Game state - 10 effects: mix of positive, negative, and neutral
+    const effects = [+15, +15, +15, +15, +5, -5, -5, 0, 0, 0];
+    const pillImages = [
+        'red_pill.webp',
+        'green_pill.webp',
+        'blue_pill.webp'
+    ];
+    
+    // Shuffle effects
+    const shuffledEffects = [...effects];
+    for (let i = shuffledEffects.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledEffects[i], shuffledEffects[j]] = [shuffledEffects[j], shuffledEffects[i]];
+    }
+    
+    const medicines = {};
+    for (let i = 0; i < 10; i++) {
+        medicines[i + 1] = shuffledEffects[i];
+    }
+    
+    const pillsContainer = document.getElementById('pillsContainer');
+    const selectedCount = document.getElementById('selectedCount');
+    const resultsModal = document.getElementById('resultsModal');
+    const resultsList = document.getElementById('resultsList');
+    const totalHp = document.getElementById('totalHp');
+    const closeResultsBtn = document.getElementById('closeResultsBtn');
+    
+    let selectedPills = [];
+    let selectedChoices = [];
+    let isDragging = false;
+    let draggedPill = null;
+    let dragOffset = { x: 0, y: 0 };
+    
+    // Create 10 pills
+    const pillElements = [];
+    for (let i = 1; i <= 10; i++) {
+        const pill = document.createElement('div');
+        pill.className = 'pill';
+        pill.dataset.pillId = i;
+        pill.dataset.effect = medicines[i];
+        
+        // Random pill image
+        const randomPillImg = pillImages[Math.floor(Math.random() * pillImages.length)];
+        const pillImagePath = '{{ url_for("static", filename="img/minigame_images/pills/") }}' + randomPillImg;
+        pill.style.backgroundImage = `url('${pillImagePath}')`;
+        
+        // Start pills invisible
+        pill.style.opacity = '0';
+        pillsContainer.appendChild(pill);
+        pillElements.push(pill);
+        
+        // Drag and click functionality
+        let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
+        let clickStartTime = 0;
+        let hasDragged = false;
+        
+        const handleMouseDown = (e) => {
+            if (selectedPills.includes(i)) return;
+            
+            clickStartTime = Date.now();
+            hasDragged = false;
+            isDragging = false;
+            draggedPill = pill;
+            
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            const currentLeft = parseFloat(pill.style.left) || 0;
+            const currentTop = parseFloat(pill.style.top) || 0;
+            
+            initialLeft = currentLeft;
+            initialTop = currentTop;
+            
+            pill.style.cursor = 'grabbing';
+            pill.style.zIndex = '10';
+            
+            e.preventDefault();
+        };
+        
+        const handleMouseMove = (e) => {
+            if (draggedPill !== pill) return;
+            
+            const moveX = Math.abs(e.clientX - startX);
+            const moveY = Math.abs(e.clientY - startY);
+            
+            if (moveX > 5 || moveY > 5) {
+                if (!isDragging) {
+                    isDragging = true;
+                    hasDragged = true;
+                }
+                
+                const containerRect = pillsContainer.getBoundingClientRect();
+                const pillWidth = containerRect.width * 0.25;
+                const pillHeight = pillWidth;
+                
+                let newX = initialLeft + (e.clientX - startX);
+                let newY = initialTop + (e.clientY - startY);
+                
+                newX = Math.max(0, Math.min(newX, containerRect.width - pillWidth));
+                newY = Math.max(0, Math.min(newY, containerRect.height - pillHeight));
+                
+                gsap.set(pill, {
+                    left: newX + 'px',
+                    top: newY + 'px'
+                });
+            }
+        };
+        
+        const handleMouseUp = () => {
+            if (draggedPill !== pill) return;
+            
+            if (!hasDragged && Date.now() - clickStartTime < 300) {
+                if (selectedPills.length >= 3) return;
+                if (selectedPills.includes(i)) return;
+                
+                selectedPills.push(i);
+                selectedChoices.push({
+                    id: i,
+                    effect: medicines[i]
+                });
+                
+                gsap.to(pill, {
+                    opacity: 0,
+                    scale: 0,
+                    rotation: 360,
+                    duration: 0.3,
+                    ease: "back.in(1.7)",
+                    onComplete: () => {
+                        pill.remove();
+                    }
+                });
+                
+                selectedCount.textContent = `Selected: ${selectedPills.length}/3`;
+                
+                if (selectedPills.length === 3) {
+                    showResults();
+                }
+            }
+            
+            isDragging = false;
+            draggedPill = null;
+            pill.style.cursor = 'grab';
+            pill.style.zIndex = '3';
+        };
+        
+        pill.addEventListener('mousedown', handleMouseDown);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        
+        // Touch events for mobile
+        let touchHasDragged = false;
+        let touchStartTime = 0;
+        
+        pill.addEventListener('touchstart', (e) => {
+            if (selectedPills.includes(i)) return;
+            
+            touchStartTime = Date.now();
+            touchHasDragged = false;
+            isDragging = false;
+            draggedPill = pill;
+            
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            
+            const currentLeft = parseFloat(pill.style.left) || 0;
+            const currentTop = parseFloat(pill.style.top) || 0;
+            
+            initialLeft = currentLeft;
+            initialTop = currentTop;
+            
+            pill.style.zIndex = '10';
+            
+            e.preventDefault();
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (draggedPill !== pill) return;
+            
+            const touch = e.touches[0];
+            const moveX = Math.abs(touch.clientX - startX);
+            const moveY = Math.abs(touch.clientY - startY);
+            
+            if (moveX > 5 || moveY > 5) {
+                if (!isDragging) {
+                    isDragging = true;
+                    touchHasDragged = true;
+                }
+                
+                const containerRect = pillsContainer.getBoundingClientRect();
+                const pillWidth = containerRect.width * 0.25;
+                const pillHeight = pillWidth;
+                
+                let newX = initialLeft + (touch.clientX - startX);
+                let newY = initialTop + (touch.clientY - startY);
+                
+                newX = Math.max(0, Math.min(newX, containerRect.width - pillWidth));
+                newY = Math.max(0, Math.min(newY, containerRect.height - pillHeight));
+                
+                gsap.set(pill, {
+                    left: newX + 'px',
+                    top: newY + 'px'
+                });
+            }
+            
+            e.preventDefault();
+        });
+        
+        document.addEventListener('touchend', () => {
+            if (draggedPill !== pill) return;
+            
+            if (!touchHasDragged && Date.now() - touchStartTime < 300) {
+                if (selectedPills.length >= 3) return;
+                if (selectedPills.includes(i)) return;
+                
+                selectedPills.push(i);
+                selectedChoices.push({
+                    id: i,
+                    effect: medicines[i]
+                });
+                
+                gsap.to(pill, {
+                    opacity: 0,
+                    scale: 0,
+                    rotation: 360,
+                    duration: 0.3,
+                    ease: "back.in(1.7)",
+                    onComplete: () => {
+                        pill.remove();
+                    }
+                });
+                
+                selectedCount.textContent = `Selected: ${selectedPills.length}/3`;
+                
+                if (selectedPills.length === 3) {
+                    showResults();
+                }
+            }
+            
+            isDragging = false;
+            draggedPill = null;
+            pill.style.zIndex = '3';
+        });
+    }
+    
+    // Container shake animation - pills react to collisions (only once)
+    let shakeInitialized = false;
+    requestAnimationFrame(() => {
+        if (shakeInitialized) return;
+        shakeInitialized = true;
+        
+        setTimeout(() => {
+            const medBoxWrapper = document.querySelector('.med-box-wrapper');
+            const containerRect = pillsContainer.getBoundingClientRect();
+            const pillWidth = containerRect.width * 0.20;
+            const pillHeight = pillWidth;
+            const halfPillWidth = pillWidth / 2;
+            const halfPillHeight = pillHeight / 2;
+            
+            // Container bounds (accounting for pill size)
+            const minX = halfPillWidth;
+            const maxX = containerRect.width - halfPillWidth;
+            const minY = halfPillHeight;
+            const maxY = containerRect.height - halfPillHeight;
+            
+            // Spawn pills at corners/edges (no overlapping)
+            const pillPhysics = [];
+            const usedPositions = [];
+            const minDistance = pillWidth * 1.2; // Minimum distance between pills
+            
+            // Function to check if position is too close to existing pills
+            const isPositionValid = (x, y) => {
+                for (const pos of usedPositions) {
+                    const distance = Math.sqrt((x - pos.x) ** 2 + (y - pos.y) ** 2);
+                    if (distance < minDistance) {
+                        return false;
+                    }
+                }
+                return true;
+            };
+            
+            // Generate corner and edge positions
+            const generateCornerPositions = () => {
+                const positions = [];
+                const padding = pillWidth * 0.6;
+                
+                // 4 corners
+                positions.push({ x: minX + padding, y: minY + padding });
+                positions.push({ x: maxX - padding, y: minY + padding });
+                positions.push({ x: minX + padding, y: maxY - padding });
+                positions.push({ x: maxX - padding, y: maxY - padding });
+                
+                // Distribute remaining 6 pills along edges
+                const edgeSpacing = (maxX - minX - padding * 2) / 3;
+                const topY = minY + padding;
+                const bottomY = maxY - padding;
+                
+                // Top edge (2 pills)
+                positions.push({ x: minX + padding + edgeSpacing, y: topY });
+                positions.push({ x: minX + padding + edgeSpacing * 2, y: topY });
+                
+                // Bottom edge (2 pills)
+                positions.push({ x: minX + padding + edgeSpacing, y: bottomY });
+                positions.push({ x: minX + padding + edgeSpacing * 2, y: bottomY });
+                
+                // Left and right edges (1 each)
+                const sideSpacing = (maxY - minY - padding * 2) / 2;
+                positions.push({ x: minX + padding, y: minY + padding + sideSpacing });
+                positions.push({ x: maxX - padding, y: minY + padding + sideSpacing });
+                
+                return positions;
+            };
+            
+            const cornerPositions = generateCornerPositions();
+            
+            // Shuffle positions to randomize
+            const shuffledPositions = [...cornerPositions];
+            for (let i = shuffledPositions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledPositions[i], shuffledPositions[j]] = [shuffledPositions[j], shuffledPositions[i]];
+            }
+            
+            // Initialize pills at corner/edge positions
+            pillElements.forEach((pill, index) => {
+                const position = shuffledPositions[index];
+                const startX = position.x;
+                const startY = position.y;
+                const startRotation = (Math.random() - 0.5) * 360;
+                
+                // Store used position
+                usedPositions.push({ x: startX, y: startY });
+                
+                // Set initial position
+                gsap.set(pill, {
+                    left: startX + 'px',
+                    top: startY + 'px',
+                    xPercent: -50,
+                    yPercent: -50,
+                    rotation: startRotation,
+                    scale: 1,
+                    opacity: 1,
+                    x: 0,
+                    y: 0
+                });
+                
+                // Initialize physics state for each pill
+                pillPhysics.push({
+                    element: pill,
+                    x: startX,
+                    y: startY,
+                    vx: 0,
+                    vy: 0,
+                    rotation: startRotation,
+                    hasPhysics: false, // Will be true when it hits a wall
+                    friction: 0.92,
+                    bounce: 0.7
+                });
+            });
+            
+            // Shake the container and wrapper together (more area, not too fast)
+            const shakeAmount = 30; // More area
+            const shakeDuration = 1.4; // Not too fast
+            const shakeSteps = 18;
+            
+            // Make ALL pills feel the shake - apply physics based on container movement
+            let shakeActive = true;
+            let previousContainerX = 0;
+            let previousContainerY = 0;
+            let lastFrameTime = performance.now();
+            let shakePhysicsLoopStarted = false;
+            
+            // Create shake animation (only once) - starts automatically
+            const containerShake = gsap.timeline({
+                onComplete: () => {
+                    shakeActive = false;
+                }
+            });
+            
+            // Shake physics loop - runs during shake to apply physics to pills
+            const shakePhysicsLoop = () => {
+                if (!shakeActive && shakePhysicsLoopStarted) return;
+                if (!shakeActive) return;
+                
+                const currentTime = performance.now();
+                const deltaTime = Math.max((currentTime - lastFrameTime) / 1000, 0.016);
+                lastFrameTime = currentTime;
+                
+                // Get current container transform and velocity
+                const containerX = gsap.getProperty(pillsContainer, "x") || 0;
+                const containerY = gsap.getProperty(pillsContainer, "y") || 0;
+                const containerRot = gsap.getProperty(pillsContainer, "rotation") || 0;
+                
+                // Calculate container velocity (change in position)
+                const containerVelX = (containerX - previousContainerX) / deltaTime;
+                const containerVelY = (containerY - previousContainerY) / deltaTime;
+                
+                // Apply physics to ALL pills based on container shake (only once per pill)
+                pillPhysics.forEach((pillState) => {
+                    if (pillState.hasPhysics) return; // Already has physics, let it continue
+                    
+                    // Calculate force based on container movement (all pills feel the shake)
+                    // The force is proportional to how much the container is moving
+                    const shakeIntensity = Math.sqrt(containerVelX * containerVelX + containerVelY * containerVelY);
+                    
+                    if (shakeIntensity > 5) { // Only apply when container is actually shaking
+                        // Give pill physics based on container movement
+                        // Add some randomness so pills don't all move the same
+                        pillState.hasPhysics = true;
+                        
+                        // Base velocity from container movement, plus random component
+                        pillState.vx = containerVelX * (0.3 + Math.random() * 0.4) + (Math.random() - 0.5) * 80;
+                        pillState.vy = containerVelY * (0.3 + Math.random() * 0.4) + (Math.random() - 0.5) * 80;
+                        
+                        // Also add some rotation-based movement
+                        if (Math.abs(containerRot) > 0.1) {
+                            const rotationForce = containerRot * 15;
+                            pillState.vx += (Math.random() - 0.5) * rotationForce;
+                            pillState.vy += (Math.random() - 0.5) * rotationForce;
+                        }
+                    }
+                });
+                
+                previousContainerX = containerX;
+                previousContainerY = containerY;
+                
+                requestAnimationFrame(shakePhysicsLoop);
+            };
+            
+            for (let i = 0; i < shakeSteps; i++) {
+                const progress = i / (shakeSteps - 1);
+                const easeProgress = progress < 0.5 
+                    ? progress * 2 
+                    : 1 - ((progress - 0.5) * 2);
+                
+                const shakeX = (Math.random() - 0.5) * shakeAmount * (1 - easeProgress * 0.7);
+                const shakeY = (Math.random() - 0.5) * shakeAmount * (1 - easeProgress * 0.7);
+                const shakeRot = (Math.random() - 0.5) * 4 * (1 - easeProgress);
+                
+                containerShake.to([pillsContainer, medBoxWrapper], {
+                    x: shakeX,
+                    y: shakeY,
+                    rotation: shakeRot,
+                    duration: shakeDuration / shakeSteps,
+                    ease: "power2.out"
+                }, i * (shakeDuration / shakeSteps));
+            }
+            
+            // Start shake physics checking loop (only once)
+            if (!shakePhysicsLoopStarted) {
+                shakePhysicsLoopStarted = true;
+                requestAnimationFrame(shakePhysicsLoop);
+            }
+            
+            // Physics loop for pills that have been hit (runs continuously)
+            let lastTime = performance.now();
+            let physicsActive = true;
+            
+            const physicsLoop = (currentTime) => {
+                if (!physicsActive) return;
+                
+                const deltaTime = Math.min((currentTime - lastTime) / 1000, 0.033); // Cap at ~30fps min
+                lastTime = currentTime;
+                
+                let anyPillMoving = false;
+                
+                pillPhysics.forEach((pillState) => {
+                    if (!pillState.hasPhysics) return;
+                    
+                    // Update position with velocity
+                    pillState.x += pillState.vx * deltaTime * 60; // Scale for 60fps
+                    pillState.y += pillState.vy * deltaTime * 60;
+                    
+                    // Check wall collisions and bounce
+                    if (pillState.x < minX) {
+                        pillState.x = minX;
+                        pillState.vx = -pillState.vx * pillState.bounce;
+                    } else if (pillState.x > maxX) {
+                        pillState.x = maxX;
+                        pillState.vx = -pillState.vx * pillState.bounce;
+                    }
+                    
+                    if (pillState.y < minY) {
+                        pillState.y = minY;
+                        pillState.vy = -pillState.vy * pillState.bounce;
+                    } else if (pillState.y > maxY) {
+                        pillState.y = maxY;
+                        pillState.vy = -pillState.vy * pillState.bounce;
+                    }
+                    
+                    // Apply friction
+                    pillState.vx *= pillState.friction;
+                    pillState.vy *= pillState.friction;
+                    
+                    // Update visual position
+                    gsap.set(pillState.element, {
+                        left: pillState.x + 'px',
+                        top: pillState.y + 'px'
+                    });
+                    
+                    // Check if still moving
+                    if (Math.abs(pillState.vx) > 0.5 || Math.abs(pillState.vy) > 0.5) {
+                        anyPillMoving = true;
+                    } else {
+                        // Stop physics when velocity is very low
+                        pillState.vx = 0;
+                        pillState.vy = 0;
+                    }
+                });
+                
+                // Continue loop if any pill is still moving
+                if (anyPillMoving) {
+                    requestAnimationFrame(physicsLoop);
+                } else {
+                    // All pills settled - finalize positions
+                    physicsActive = false;
+                    pillPhysics.forEach((pillState) => {
+                        const finalRotation = (Math.random() - 0.5) * 360;
+                        gsap.set(pillState.element, {
+                            xPercent: 0,
+                            yPercent: 0,
+                            left: (pillState.x - halfPillWidth) + 'px',
+                            top: (pillState.y - halfPillHeight) + 'px',
+                            rotation: finalRotation,
+                            x: 0,
+                            y: 0
+                        });
+                    });
+                }
+            };
+            
+            // Start physics loop immediately (will only affect pills with hasPhysics = true)
+            requestAnimationFrame(physicsLoop);
+            
+        }, 150);
+    });
+    
+    function showResults() {
+        // Calculate total HP
+        let totalHpChange = 0;
+        let resultsHtml = '';
+        
+        selectedChoices.forEach(choice => {
+            totalHpChange += choice.effect;
+            const sign = choice.effect >= 0 ? '+' : '';
+            resultsHtml += `<div class="result-item">
+                <span>Medicine ${choice.id}</span>
+                <span class="effect ${choice.effect >= 0 ? 'positive' : 'negative'}">${sign}${choice.effect} HP</span>
+            </div>`;
+        });
+        
+        resultsList.innerHTML = resultsHtml;
+        
+        const sign = totalHpChange >= 0 ? '+' : '';
+        totalHp.innerHTML = `<div class="total-label">Total HP Change:</div><div class="total-value ${totalHpChange >= 0 ? 'positive' : 'negative'}">${sign}${totalHpChange}</div>`;
+        
+        // Show modal
+        setTimeout(() => {
+            resultsModal.classList.remove('hidden');
+        }, 500);
+    }
+    
+    closeResultsBtn.addEventListener('click', () => {
+        resultsModal.classList.add('hidden');
+    });
+    
+    // Close modal when clicking outside
+    resultsModal.addEventListener('click', (e) => {
+        if (e.target === resultsModal) {
+            resultsModal.classList.add('hidden');
+        }
+    });
+});
+</script>
+{% endblock %}
+

@@ -73,7 +73,7 @@ class GameManager:
                 raise ValueError("player already spawned")
 
             # pick a free or random cell if not provided
-            if pos is None or not self.in_bounds(pos):
+            if pos is None:
                 free = [(x,y) for x in range(self.board_size) for y in range(self.board_size)]
                 if not free:
                     raise RuntimeError("Board full")

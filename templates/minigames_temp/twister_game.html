@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Twister Game - Nani House{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/minigames.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/twister_game.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="twister-game-container">
+    <div class="game-title" id="gameTitle">Say This 3 Times</div>
+    
+    <div class="timer-display" id="timerDisplay">30</div>
+    
+    <div class="twist-display" id="twistDisplay"></div>
+    
+    <div class="mic-wrapper">
+        <img src="{{ url_for('static', filename='img/minigame_images/mic.png') }}" alt="Microphone" class="mic-image" id="micImage">
+        <div class="recording-indicator hidden" id="recordingIndicator"></div>
+    </div>
+    
+    <div class="game-controls">
+        <button id="tapToSpeakBtn" class="game-control-btn">
+            <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Tap to Speak" class="game-control-btn-img">
+            <span class="game-control-btn-text" id="tapToSpeakBtnText">Tap to Speak</span>
+        </button>
+        <button id="sendBtn" class="game-control-btn" disabled style="display:none">
+            <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Send" class="game-control-btn-img">
+            <span class="game-control-btn-text">Send</span>
+        </button>
+    </div>
+    
+    <div class="audio-playback hidden" id="audioPlayback">
+        <audio id="playback" controls></audio>
+    </div>
+    
+    <!-- Popup Modal (for checking and results) -->
+    <div class="popup-modal hidden" id="popupModal">
+        <div class="popup-modal-content">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="Popup" class="popup-modal-bg">
+            <div class="popup-modal-inner">
+                <!-- Checking state -->
+                <div class="popup-checking hidden" id="popupChecking">
+                    <div class="popup-title">Being checked by Nani...</div>
+                </div>
+                
+                <!-- Results state -->
+                <div class="popup-results hidden" id="popupResults">
+                    <div class="popup-title">Your Score</div>
+                    <div class="score-display" id="scoreDisplay"></div>
+                    <div class="twist-result" id="twistResult"></div>
+                    <div class="similarity-display" id="similarityDisplay"></div>
+                    <div class="repetitions-display" id="repetitionsDisplay"></div>
+                    <button id="playAgainBtn" class="play-again-button">
+                        <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Play Again" class="play-again-button-img">
+                        <span class="play-again-button-text">Play Again</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/twister_game.js') }}"></script>
+{% endblock %}
+
