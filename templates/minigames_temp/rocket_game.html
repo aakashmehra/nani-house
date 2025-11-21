@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Rocket Game - Nani House{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/minigames.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="rocket-game-container">
+    <div class="rocket-game-wrapper">
+        <!-- Sky background with birds -->
+        <div class="rocket-sky">
+            <div class="birds-container" id="birdsContainer"></div>
+            <img src="{{ url_for('static', filename='img/minigame_images/rocket_game_assets/backyard.webp') }}" alt="Backyard" class="backyard-bg">
+        </div>
+        
+        <!-- Rocket -->
+        <div class="rocket-wrapper" id="rocketWrapper">
+            <img src="{{ url_for('static', filename='img/minigame_images/rocket_game_assets/rocket_start_pos.webp') }}" alt="Rocket" class="rocket-image" id="rocketImage">
+        </div>
+        
+        <!-- Timer Display -->
+        <div class="rocket-timer" id="rocketTimer">30</div>
+        
+        <!-- Tap Button Area -->
+        <div class="rocket-button-area">
+            <img src="{{ url_for('static', filename='img/minigame_images/rocket_game_assets/rocket_tap_button.webp') }}" alt="Tap Button" class="rocket-button-bg">
+            <button class="rocket-tap-button" id="rocketTapButton"></button>
+        </div>
+    </div>
+    
+    <!-- Results Popup -->
+    <div class="rocket-popup-modal hidden" id="rocketPopupModal">
+        <div class="rocket-popup-content">
+            <img src="{{ url_for('static', filename='img/background/popup.webp') }}" alt="Popup" class="rocket-popup-bg">
+            <div class="rocket-popup-inner">
+                <div class="rocket-popup-title">Your Rocket Height</div>
+                <div class="rocket-height-display" id="rocketHeightDisplay">0m</div>
+                <div class="rocket-taps-display" id="rocketTapsDisplay">0 taps</div>
+                <button id="rocketPlayAgainBtn" class="rocket-play-again-button">
+                    <img src="{{ url_for('static', filename='img/buttons/button_primary.webp') }}" alt="Play Again" class="rocket-play-again-button-img">
+                    <span class="rocket-play-again-button-text">Play Again</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/rocket_game.js') }}"></script>
+{% endblock %}
+

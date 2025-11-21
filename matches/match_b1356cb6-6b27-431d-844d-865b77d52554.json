@@ -1,0 +1,33 @@
+{
+  "match_id": "b1356cb6-6b27-431d-844d-865b77d52554",
+  "satrted_at": "2025-11-20T21:37:07.364356",
+  "players": {
+    "2": {
+      "user": "sanal",
+      "id": 6,
+      "name": "Beaster",
+      "max_health": 130,
+      "health": 130,
+      "shield": 10,
+      "dice_id": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    "3": {
+      "user": "Cider",
+      "id": 3,
+      "name": "Makdi",
+      "max_health": 100,
+      "health": 100,
+      "shield": 3,
+      "dice_id": 1,
+      "position": [
+        0,
+        0
+      ]
+    }
+  },
+  "player_count": 2
+}

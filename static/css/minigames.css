@@ -269,3 +269,306 @@
     }
 }
 
+/* ============================================================================
+   ROCKET GAME STYLES
+   ============================================================================ */
+
+.rocket-game-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background-image: url('/static/img/background/game_bg.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* PC: Small phone-like window in center (16:9 ratio) */
+.rocket-game-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    aspect-ratio: 9 / 16;
+    background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #98D8C8 100%);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 769px) {
+    .rocket-game-wrapper {
+        max-width: 450px;
+        max-height: 800px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* Sky background with birds */
+.rocket-sky {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.backyard-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    z-index: 2;
+    transition: transform 0.1s linear;
+}
+
+.birds-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.bird {
+    position: absolute;
+    width: 60px;
+    height: auto;
+    object-fit: contain;
+    opacity: 0.8;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Rocket - LOCKED in center, never moves */
+.rocket-wrapper {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 5;
+    pointer-events: none;
+    transition: none;
+}
+
+.rocket-image {
+    width: 350px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+/* Timer */
+.rocket-timer {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    font-family: 'Alfa Slab One', cursive;
+    font-size: clamp(2.5rem, 7vw, 4rem);
+    color: #ff4444;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.9);
+    animation: pulse 1s infinite;
+}
+
+/* Tap Button Area */
+.rocket-button-area {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 769px) {
+    .rocket-button-area {
+        width: 50%;
+    }
+}
+
+.rocket-button-bg {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.rocket-tap-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80%;
+    min-height: 30px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 7;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.rocket-tap-button:active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Results Popup */
+.rocket-popup-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.rocket-popup-modal.hidden {
+    display: none;
+}
+
+.rocket-popup-content {
+    position: relative;
+    width: min(400px, 90%);
+    max-width: 500px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rocket-popup-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 1;
+}
+
+.rocket-popup-inner {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.rocket-popup-title {
+    font-family: 'Alfa Slab One', cursive;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    margin-bottom: 1rem;
+}
+
+.rocket-height-display {
+    font-family: 'Alfa Slab One', cursive;
+    font-size: clamp(3rem, 8vw, 5rem);
+    color: #4CAF50;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+    margin-bottom: 0.5rem;
+}
+
+.rocket-taps-display {
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+}
+
+.rocket-play-again-button {
+    position: relative;
+    width: 150px;
+    height: 50px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 1rem;
+}
+
+.rocket-play-again-button-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 1;
+}
+
+.rocket-play-again-button-text {
+    position: relative;
+    z-index: 2;
+    font-family: 'Sansation', sans-serif;
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.rocket-play-again-button:active {
+    transform: scale(0.95);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .rocket-game-wrapper {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 0;
+    }
+    
+    .rocket-image {
+        width: 250px;
+    }
+    
+    .bird {
+        width: 50px;
+    }
+    
+    .rocket-popup-content {
+        width: min(350px, 85%);
+    }
+}
+

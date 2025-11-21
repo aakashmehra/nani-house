@@ -121,6 +121,11 @@ def twister_game():
     """Twister game - say tongue twisters"""
     return render_template('minigames_temp/twister_game.html')
 
+@minigame_bp.route('/rocket_game')
+def rocket_game():
+    """Rocket game - tap to fly"""
+    return render_template('minigames_temp/rocket_game.html')
+
 @minigame_bp.route('/drawing_game/task')
 def drawing_game_task():
     """Get a random drawing task"""
